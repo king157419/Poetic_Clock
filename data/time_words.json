@@ -1,0 +1,110 @@
+{
+  "meta": {
+    "purpose": "十二时辰各自的合法「直书时间词」表。编辑标准:每句诗必须在字面上写着此刻(如 Literature Clock),其 time_word 必须是 line 的子串,且必须出自所属时辰的下列词表。",
+    "rules": [
+      "一个词只归属一个时辰(全表不重复)。",
+      "更点对应:一更=戌,二更=亥,三更=子,四更=丑,五更=寅。",
+      "boundary=true 的词为跨档词(晨昏之交、日斜等),先归入起草者判断最合理的一档,供主编 King 复裁改归。"
+    ],
+    "curator": "King",
+    "version": "v2-draft"
+  },
+  "shichen": [
+    {
+      "id": "zi", "name": "子时", "alias": "夜半",
+      "words": [
+        { "word": "夜半" }, { "word": "三更" }, { "word": "中夜" },
+        { "word": "半夜" }, { "word": "子夜" }, { "word": "夜分" },
+        { "word": "更深", "note": "夜深更残,归子时" }
+      ]
+    },
+    {
+      "id": "chou", "name": "丑时", "alias": "鸡鸣",
+      "words": [
+        { "word": "鸡鸣" }, { "word": "四更" },
+        { "word": "鸡声", "note": "鸡声即鸡鸣,归丑时" }, { "word": "荒鸡" }
+      ]
+    },
+    {
+      "id": "yin", "name": "寅时", "alias": "平旦",
+      "words": [
+        { "word": "平旦" }, { "word": "平明" }, { "word": "五更" },
+        { "word": "拂晓" }, { "word": "昧旦" }, { "word": "昧爽" },
+        { "word": "黎明", "boundary": true, "note": "黎明将晓,跨寅/卯,暂归寅(天未大明)" }
+      ]
+    },
+    {
+      "id": "mao", "name": "卯时", "alias": "日出",
+      "words": [
+        { "word": "日出" }, { "word": "晓" }, { "word": "清晨" },
+        { "word": "破晓" }, { "word": "旭日" }, { "word": "朝日" },
+        { "word": "初日" }, { "word": "曈曈" }, { "word": "晨曦" }
+      ]
+    },
+    {
+      "id": "chen", "name": "辰时", "alias": "食时",
+      "words": [
+        { "word": "食时" }, { "word": "朝食" }, { "word": "晏食" },
+        { "word": "晨", "boundary": true, "note": "清晨过后、朝食之时,跨卯/辰,暂归辰" },
+        { "word": "朝", "boundary": true, "note": "朝发、朝来,跨卯/辰,暂归辰" },
+        { "word": "朝来", "boundary": true, "note": "同上,暂归辰" }
+      ]
+    },
+    {
+      "id": "si", "name": "巳时", "alias": "隅中",
+      "words": [
+        { "word": "隅中" }, { "word": "禺中" },
+        { "word": "日高", "note": "日已高、近午未午,归巳时隅中" }
+      ]
+    },
+    {
+      "id": "wu", "name": "午时", "alias": "日中",
+      "words": [
+        { "word": "日中" }, { "word": "正午" }, { "word": "亭午" },
+        { "word": "日午" }, { "word": "当午" }, { "word": "日当午" },
+        { "word": "卓午" }, { "word": "晌午" }
+      ]
+    },
+    {
+      "id": "wei", "name": "未时", "alias": "日昳",
+      "words": [
+        { "word": "日昳" }, { "word": "午后" }, { "word": "日昃" }, { "word": "过午" },
+        { "word": "午梦", "boundary": true, "note": "午睡入梦、延至午后,跨午/未,暂归未" },
+        { "word": "午枕", "boundary": true, "note": "午卧,跨午/未,暂归未" },
+        { "word": "日斜", "boundary": true, "note": "日初西斜,跨未/申,暂归未(尚未及晡)" }
+      ]
+    },
+    {
+      "id": "shen", "name": "申时", "alias": "晡时",
+      "words": [
+        { "word": "晡" }, { "word": "日晡" }, { "word": "晡时" }, { "word": "下舂" },
+        { "word": "返景", "note": "返照入林、晡时斜光,归申时" },
+        { "word": "斜晖", "boundary": true, "note": "斜晖脉脉,跨申/酉,暂归申" }
+      ]
+    },
+    {
+      "id": "you", "name": "酉时", "alias": "日入",
+      "words": [
+        { "word": "日入" }, { "word": "落日" }, { "word": "日没" },
+        { "word": "日落" }, { "word": "夕照" },
+        { "word": "残阳", "note": "残阳铺水,日入之象,归酉时" },
+        { "word": "斜阳", "boundary": true, "note": "斜阳晚照,跨申/酉,暂归酉" }
+      ]
+    },
+    {
+      "id": "xu", "name": "戌时", "alias": "黄昏",
+      "words": [
+        { "word": "黄昏" }, { "word": "日暮" }, { "word": "薄暮" },
+        { "word": "暮" }, { "word": "一更" }, { "word": "向晚" }, { "word": "暝色" },
+        { "word": "夕阳", "boundary": true, "note": "夕阳西下、已近黄昏,跨酉/戌,暂归戌" }
+      ]
+    },
+    {
+      "id": "hai", "name": "亥时", "alias": "人定",
+      "words": [
+        { "word": "人定" }, { "word": "二更" }, { "word": "定昏" }, { "word": "向夜" },
+        { "word": "夜阑", "boundary": true, "note": "夜阑更残,跨亥/子,暂归亥(人定入夜)" }
+      ]
+    }
+  ]
+}

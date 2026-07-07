@@ -107,12 +107,41 @@ function checkClauseLengths(line) {
   return { warn: warn, err: err };
 }
 
+/**
+ * 编辑标准校验(纯函数):数据集每条 time_word 须①是 line 的子串,
+ * ②属于其所属时辰在 timeWords 中的合法词表。仅校验带 time_word 的条目。
+ * @returns {{checked:number, subMiss:string[], listMiss:string[]}}
+ */
+function validateTimeWords(dataset, timeWords) {
+  const subMiss = [], listMiss = [];
+  let checked = 0;
+  const legal = {};
+  if (timeWords && Array.isArray(timeWords.shichen)) {
+    timeWords.shichen.forEach(function (s) {
+      legal[s.id] = {};
+      (s.words || []).forEach(function (w) { legal[s.id][w.word] = true; });
+    });
+  }
+  if (dataset && Array.isArray(dataset.shichen)) {
+    dataset.shichen.forEach(function (sc) {
+      (sc.poems || []).forEach(function (po) {
+        if (!po.time_word) return;
+        checked++;
+        if (po.line.indexOf(po.time_word) === -1) subMiss.push(sc.id + '「' + po.time_word + '」非 line 子串');
+        if (legal[sc.id] && !legal[sc.id][po.time_word]) listMiss.push(sc.id + '「' + po.time_word + '」不在词表');
+      });
+    });
+  }
+  return { checked: checked, subMiss: subMiss, listMiss: listMiss };
+}
+
 /* ======================================================================
  * 自检测试(附:子时跨午夜边界)。浏览器 URL 加 ?selftest 运行;
  * Node 环境亦可 require 本文件后调用 runSelfTests()。不接触 DOM。
  * ==================================================================== */
 
-function runSelfTests(data) {
+function runSelfTests(data, opts) {
+  opts = opts || {};   // { timeWords, standard, festivals } — 校验新标准/节令用
   const results = [];
   const ok = (name, cond, extra) => results.push({ name, pass: !!cond, extra: extra || '' });
 
@@ -194,6 +223,48 @@ function runSelfTests(data) {
     if (clauseWarn.length) console.warn('[诗意时钟] 拆句 >12 字(警告):', clauseWarn);
     ok('拆句后无单句 > 16 字(数据错误)', clauseErr.length === 0,
       clauseErr.length ? '超长:' + clauseErr.join('/') : (clauseWarn.length ? '(' + clauseWarn.length + ' 条 >12 字警告)' : ''));
+  }
+
+  // §2 编辑标准硬测试:对「标准数据集」(默认取迁移提案 opts.standard)校验 time_word。
+  if (opts.timeWords) {
+    let dup = 0; const seen = {};
+    (opts.timeWords.shichen || []).forEach(function (s) {
+      (s.words || []).forEach(function (w) { if (seen[w.word]) dup++; else seen[w.word] = s.id; });
+    });
+    ok('时间词表:一词只归一时辰', dup === 0, dup ? dup + ' 词跨档重复' : '(77 词唯一)');
+
+    const std = opts.standard || data;
+    const v = validateTimeWords(std, opts.timeWords);
+    ok('① 每条 time_word 是 line 的子串', v.subMiss.length === 0,
+      v.subMiss.length ? v.subMiss.join('; ') : '(校验 ' + v.checked + ' 条)');
+    ok('② 每条 time_word 属于其时辰词表', v.listMiss.length === 0,
+      v.listMiss.length ? v.listMiss.join('; ') : '(校验 ' + v.checked + ' 条)');
+  }
+
+  // §4 节令层硬测试(注入合成数据 + 节日表,不依赖真实曲库)。
+  if (opts.festivals !== undefined || opts.testFestival) {
+    const festData = {
+      shichen: [
+        { id: 'zi', name: '子时', alias: '夜半', range: [23, 1], poems: [{ line: '常规子时句', time_word: '夜半' }] },
+        { id: 'mao', name: '卯时', alias: '日出', range: [5, 7], poems: [
+          { line: '爆竹声中一岁除', time_word: '曈曈', festival: '春节' },
+          { line: '常规卯时句一', time_word: '日出' }, { line: '常规卯时句二', time_word: '晓' }
+        ] }
+      ]
+    };
+    const fest = { '2026-02-17': ['春节'] };
+    // ① 注入春节当天 → 卯时返回节日句
+    const onFest = selectPoem(new Date(2026, 1, 17, 6, 0), festData, fest);
+    ok('节令:春节当天卯时返回节日句', !!onFest && onFest.poem.festival === '春节' && onFest.isFestival === true,
+      onFest ? onFest.poem.line : 'null');
+    // ② 平常日 → 节日句绝不出现,且常规选句无 festival 字段
+    let leaked = false;
+    for (let d = 1; d <= 28; d++) {
+      if (d === 17) continue;
+      const s = selectPoem(new Date(2026, 1, d, 6, 0), festData, fest);
+      if (s && s.poem.festival) leaked = true;
+    }
+    ok('节令:平常日节日句绝不出现', !leaked);
   }
 
   const failed = results.filter(r => !r.pass);
@@ -313,13 +384,25 @@ if (typeof document !== 'undefined') {
     function renderClauses(poem) {
       const clauses = splitClauses(poem.line);
       lastClauses = clauses;
+      const tw = poem.time_word || '';
       // 移除旧列(保留 #poemMeta / #seal),把新列插在落款之前
       const old = el.poem.querySelectorAll('.clause');
       for (let i = 0; i < old.length; i++) old[i].remove();
       clauses.forEach(function (c) {
         const col = document.createElement('p');
         col.className = 'clause';
-        col.textContent = c;
+        const idx = tw ? c.indexOf(tw) : -1;
+        if (idx !== -1) {
+          // 用着重号(text-emphasis)标出诗中的时间词;用文本节点避免注入
+          if (idx > 0) col.appendChild(document.createTextNode(c.slice(0, idx)));
+          const em = document.createElement('em');
+          em.className = 'tw';
+          em.textContent = tw;
+          col.appendChild(em);
+          if (idx + tw.length < c.length) col.appendChild(document.createTextNode(c.slice(idx + tw.length)));
+        } else {
+          col.textContent = c;
+        }
         el.poem.insertBefore(col, el.meta);
       });
       fitFont(clauses);
@@ -437,6 +520,6 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     selectPoem, shichenIndexForHour, shichenProgress, poemIndexForWeekday,
-    isNightHour, splitClauses, checkClauseLengths, runSelfTests
+    isNightHour, splitClauses, checkClauseLengths, validateTimeWords, runSelfTests
   };
 }

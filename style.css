@@ -87,6 +87,16 @@ body {
   color: var(--ink);
 }
 
+/* 着重号:诗句中的「直书时间词」字旁加点。竖排下点在字右;墨色,不用强调红 */
+.clause .tw {
+  font-style: normal;
+  color: var(--ink);
+  text-emphasis: filled dot;
+  -webkit-text-emphasis: filled dot;
+  text-emphasis-position: over right;   /* 竖排下映射到字的右侧,即传统着重号位置 */
+  -webkit-text-emphasis-position: over right;
+}
+
 .poem-meta {
   margin: 0;
   align-self: flex-end;            /* 落款:排在所有诗列的左侧、底对齐 */
