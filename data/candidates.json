@@ -1,0 +1,468 @@
+{
+  "meta": {
+    "type": "candidates",
+    "library": "诗意时钟 · 公共曲库(候选区)",
+    "curator": "King",
+    "process": "候选池。每条须由主编 King 逐条人工核对出处后,手动晋升进 data/poems.json;未经核对不得并入正式曲库。confidence:high=用字与出处高度确信;medium=确为真句,但作者归属 / 用字 / 时辰匹配存疑,核对时请重点看 source_note。",
+    "contribute": "欢迎投稿:提交 PR 修改本文件,在对应时辰的 candidates 里新增一条,字段同 poems.json,并须补 confidence 与 source_note(可查证的权威选本 / 全集)。严禁杜撰、拼接、改写;拿不准宁可不投。",
+    "note": "本文件不被网页读取、不影响渲染,仅作曲库扩充的待审区。目标:每时辰扩至 7 句。"
+  },
+  "shichen": [
+    {
+      "id": "zi",
+      "name": "子时",
+      "alias": "夜半",
+      "range": [23, 1],
+      "candidates": [
+        {
+          "line": "床前明月光，疑是地上霜",
+          "source": "《静夜思》",
+          "author": "李白",
+          "dynasty": "唐",
+          "why": "静夜霜月,子时独醒。",
+          "confidence": "high",
+          "source_note": "《唐诗三百首》《李太白全集》;通行本作「床前明月光」。"
+        },
+        {
+          "line": "今夜鄜州月，闺中只独看",
+          "source": "《月夜》",
+          "author": "杜甫",
+          "dynasty": "唐",
+          "why": "彻夜看月思亲,正子时之情。",
+          "confidence": "high",
+          "source_note": "《杜工部集》。"
+        },
+        {
+          "line": "夜深忽梦少年事，梦啼妆泪红阑干",
+          "source": "《琵琶行》",
+          "author": "白居易",
+          "dynasty": "唐",
+          "why": "夜深入梦,子时之思。",
+          "confidence": "high",
+          "source_note": "《白氏长庆集》《唐诗三百首》。"
+        },
+        {
+          "line": "三更灯火五更鸡，正是男儿读书时",
+          "source": "《劝学》",
+          "author": "颜真卿(旧题)",
+          "dynasty": "唐",
+          "why": "三更正当子时,灯火苦读。",
+          "confidence": "medium",
+          "source_note": "《全唐诗》录旧题颜真卿《劝学诗》;作者归属历有争议,晋升前请核。"
+        }
+      ]
+    },
+    {
+      "id": "chou",
+      "name": "丑时",
+      "alias": "鸡鸣",
+      "range": [1, 3],
+      "candidates": [
+        {
+          "line": "狗吠深巷中，鸡鸣桑树颠",
+          "source": "《归园田居·其一》",
+          "author": "陶渊明",
+          "dynasty": "东晋",
+          "why": "鸡鸣桑颠,丑时村晓。",
+          "confidence": "high",
+          "source_note": "《陶渊明集》;「颠」通「巅」。"
+        },
+        {
+          "line": "女曰鸡鸣，士曰昧旦",
+          "source": "《诗经·郑风·女曰鸡鸣》",
+          "author": "佚名",
+          "dynasty": "先秦",
+          "why": "鸡鸣昧旦,丑寅之交。",
+          "confidence": "high",
+          "source_note": "《毛诗》《诗经》。"
+        },
+        {
+          "line": "半壁见海日，空中闻天鸡",
+          "source": "《梦游天姥吟留别》",
+          "author": "李白",
+          "dynasty": "唐",
+          "why": "空中天鸡一唱,鸡鸣之象。",
+          "confidence": "medium",
+          "source_note": "《李太白全集》;「天鸡」为神话意象,时辰系借喻。"
+        },
+        {
+          "line": "雄鸡一声天下白",
+          "source": "《致酒行》",
+          "author": "李贺",
+          "dynasty": "唐",
+          "why": "雄鸡一唱,残夜将尽。",
+          "confidence": "medium",
+          "source_note": "《李贺集》;通行或作「雄鸡一声天下白」,亦见「一唱」异文,晋升前请以善本核字。"
+        }
+      ]
+    },
+    {
+      "id": "yin",
+      "name": "寅时",
+      "alias": "平旦",
+      "range": [3, 5],
+      "candidates": [
+        {
+          "line": "残星几点雁横塞，长笛一声人倚楼",
+          "source": "《长安晚秋》",
+          "author": "赵嘏",
+          "dynasty": "唐",
+          "why": "残星拂曙,正是平旦。",
+          "confidence": "high",
+          "source_note": "《全唐诗》;一题《长安秋望》。"
+        },
+        {
+          "line": "夜阑卧听风吹雨，铁马冰河入梦来",
+          "source": "《十一月四日风雨大作》",
+          "author": "陆游",
+          "dynasty": "宋",
+          "why": "夜阑将晓,梦回平旦。",
+          "confidence": "high",
+          "source_note": "《剑南诗稿》(其二)。"
+        },
+        {
+          "line": "鸡鸣紫陌曙光寒，莺啭皇州春色阑",
+          "source": "《早朝大明宫》",
+          "author": "贾至",
+          "dynasty": "唐",
+          "why": "曙光初透,平旦上朝。",
+          "confidence": "high",
+          "source_note": "《全唐诗》;一题《早朝大明宫呈两省僚友》。"
+        }
+      ]
+    },
+    {
+      "id": "mao",
+      "name": "卯时",
+      "alias": "日出",
+      "range": [5, 7],
+      "candidates": [
+        {
+          "line": "清晨入古寺，初日照高林",
+          "source": "《题破山寺后禅院》",
+          "author": "常建",
+          "dynasty": "唐",
+          "why": "清晨初日,正是卯时。",
+          "confidence": "high",
+          "source_note": "《唐诗三百首》。"
+        },
+        {
+          "line": "晓看红湿处，花重锦官城",
+          "source": "《春夜喜雨》",
+          "author": "杜甫",
+          "dynasty": "唐",
+          "why": "拂晓看花,日出之景。",
+          "confidence": "high",
+          "source_note": "《杜工部集》。"
+        },
+        {
+          "line": "千门万户曈曈日，总把新桃换旧符",
+          "source": "《元日》",
+          "author": "王安石",
+          "dynasty": "宋",
+          "why": "曈曈朝日,万户初升。",
+          "confidence": "high",
+          "source_note": "《临川先生文集》。"
+        },
+        {
+          "line": "两个黄鹂鸣翠柳，一行白鹭上青天",
+          "source": "《绝句》",
+          "author": "杜甫",
+          "dynasty": "唐",
+          "why": "翠柳黄鹂,清晨明丽。",
+          "confidence": "medium",
+          "source_note": "《杜工部集》;写晨景,时辰系借喻。"
+        }
+      ]
+    },
+    {
+      "id": "chen",
+      "name": "辰时",
+      "alias": "食时",
+      "range": [7, 9],
+      "candidates": [
+        {
+          "line": "青青园中葵，朝露待日晞",
+          "source": "《长歌行》",
+          "author": "佚名(汉乐府)",
+          "dynasty": "汉",
+          "why": "朝露待晞,辰时向食。",
+          "confidence": "high",
+          "source_note": "《乐府诗集·相和歌辞》。"
+        },
+        {
+          "line": "晨兴理荒秽，带月荷锄归",
+          "source": "《归园田居·其三》",
+          "author": "陶渊明",
+          "dynasty": "东晋",
+          "why": "晨兴而作,食时躬耕。",
+          "confidence": "high",
+          "source_note": "《陶渊明集》;句含朝暮,取「晨兴」意。"
+        },
+        {
+          "line": "晨起动征铎，客行悲故乡",
+          "source": "《商山早行》",
+          "author": "温庭筠",
+          "dynasty": "唐",
+          "why": "晨起启程,辰时在途。",
+          "confidence": "medium",
+          "source_note": "《温飞卿诗集》;与丑时「鸡声茅店月」同出一诗,择一即可。"
+        }
+      ]
+    },
+    {
+      "id": "si",
+      "name": "巳时",
+      "alias": "隅中",
+      "range": [9, 11],
+      "candidates": [
+        {
+          "line": "叶上初阳干宿雨，水面清圆，一一风荷举",
+          "source": "《苏幕遮》",
+          "author": "周邦彦",
+          "dynasty": "宋",
+          "why": "初阳干雨,日高隅中。",
+          "confidence": "high",
+          "source_note": "《片玉词》(苏幕遮·燎沉香)。"
+        },
+        {
+          "line": "沾衣欲湿杏花雨，吹面不寒杨柳风",
+          "source": "《绝句》",
+          "author": "志南",
+          "dynasty": "宋",
+          "why": "上午杏雨柳风,和暖近午。",
+          "confidence": "high",
+          "source_note": "南宋僧志南作,见《宋诗纪事》。"
+        },
+        {
+          "line": "小荷才露尖尖角，早有蜻蜓立上头",
+          "source": "《小池》",
+          "author": "杨万里",
+          "dynasty": "宋",
+          "why": "日高荷小,巳时清趣。",
+          "confidence": "medium",
+          "source_note": "《诚斋集》;写白昼小景,时辰系借喻。"
+        }
+      ]
+    },
+    {
+      "id": "wu",
+      "name": "午时",
+      "alias": "日中",
+      "range": [11, 13],
+      "candidates": [
+        {
+          "line": "力尽不知热，但惜夏日长",
+          "source": "《观刈麦》",
+          "author": "白居易",
+          "dynasty": "唐",
+          "why": "炎午刈麦,日中之劳。",
+          "confidence": "high",
+          "source_note": "《白氏长庆集》。"
+        },
+        {
+          "line": "日午独觉无余声，山童隔竹敲茶臼",
+          "source": "《夏昼偶作》",
+          "author": "柳宗元",
+          "dynasty": "唐",
+          "why": "直书「日午」,午睡方觉。",
+          "confidence": "high",
+          "source_note": "《柳河东集》。"
+        },
+        {
+          "line": "赤日炎炎似火烧，野田禾稻半枯焦",
+          "source": "《水浒传》(所引民谣)",
+          "author": "佚名",
+          "dynasty": "明",
+          "why": "赤日当空,日中酷暑。",
+          "confidence": "medium",
+          "source_note": "《水浒传》第十六回白日鼠白胜所唱民谣,非文人诗,晋升前请酌定是否收录。"
+        }
+      ]
+    },
+    {
+      "id": "wei",
+      "name": "未时",
+      "alias": "日昳",
+      "range": [13, 15],
+      "candidates": [
+        {
+          "line": "日长篱落无人过，惟有蜻蜓蛱蝶飞",
+          "source": "《四时田园杂兴》",
+          "author": "范成大",
+          "dynasty": "宋",
+          "why": "日长午后,篱落人稀,正是日昳。",
+          "confidence": "high",
+          "source_note": "《石湖居士诗集》「梅子金黄杏子肥」一首。"
+        },
+        {
+          "line": "纸屏石枕竹方床，手倦抛书午梦长",
+          "source": "《夏日登车盖亭》",
+          "author": "蔡确",
+          "dynasty": "宋",
+          "why": "午后倦读入梦,日昳时分。",
+          "confidence": "medium",
+          "source_note": "《宋诗纪事》;蔡确名声不彰而句真,晋升前请核。"
+        }
+      ]
+    },
+    {
+      "id": "shen",
+      "name": "申时",
+      "alias": "晡时",
+      "range": [15, 17],
+      "candidates": [
+        {
+          "line": "斜阳草树，寻常巷陌",
+          "source": "《永遇乐·京口北固亭怀古》",
+          "author": "辛弃疾",
+          "dynasty": "宋",
+          "why": "斜阳草树,晡时之光。",
+          "confidence": "high",
+          "source_note": "《稼轩长短句》;全句「斜阳草树，寻常巷陌，人道寄奴曾住」。"
+        },
+        {
+          "line": "斜阳外，寒鸦数点，流水绕孤村",
+          "source": "《满庭芳》",
+          "author": "秦观",
+          "dynasty": "宋",
+          "why": "斜阳寒鸦,日已西斜。",
+          "confidence": "high",
+          "source_note": "《淮海居士长短句》(满庭芳·山抹微云)。"
+        },
+        {
+          "line": "浮云游子意，落日故人情",
+          "source": "《送友人》",
+          "author": "李白",
+          "dynasty": "唐",
+          "why": "落日送别,申末向酉。",
+          "confidence": "high",
+          "source_note": "《李太白全集》《唐诗三百首》。"
+        }
+      ]
+    },
+    {
+      "id": "you",
+      "name": "酉时",
+      "alias": "日入",
+      "range": [17, 19],
+      "candidates": [
+        {
+          "line": "白日依山尽，黄河入海流",
+          "source": "《登鹳雀楼》",
+          "author": "王之涣",
+          "dynasty": "唐",
+          "why": "白日依山,正是日入。",
+          "confidence": "high",
+          "source_note": "《唐诗三百首》;一作朱斌诗,通行归王之涣。"
+        },
+        {
+          "line": "夕阳无限好，只是近黄昏",
+          "source": "《登乐游原》",
+          "author": "李商隐",
+          "dynasty": "唐",
+          "why": "夕阳无限,日入酉时。",
+          "confidence": "high",
+          "source_note": "《唐诗三百首》;句含「近黄昏」,与戌时略叠,取其夕阳意象。"
+        },
+        {
+          "line": "山气日夕佳，飞鸟相与还",
+          "source": "《饮酒·其五》",
+          "author": "陶渊明",
+          "dynasty": "东晋",
+          "why": "日夕山佳,飞鸟归还。",
+          "confidence": "high",
+          "source_note": "《陶渊明集》。"
+        }
+      ]
+    },
+    {
+      "id": "xu",
+      "name": "戌时",
+      "alias": "黄昏",
+      "range": [19, 21],
+      "candidates": [
+        {
+          "line": "日暮乡关何处是，烟波江上使人愁",
+          "source": "《黄鹤楼》",
+          "author": "崔颢",
+          "dynasty": "唐",
+          "why": "直书「日暮」,黄昏乡愁。",
+          "confidence": "high",
+          "source_note": "《唐诗三百首》。"
+        },
+        {
+          "line": "夕阳西下，断肠人在天涯",
+          "source": "《天净沙·秋思》",
+          "author": "马致远",
+          "dynasty": "元",
+          "why": "夕阳西下,黄昏断肠。",
+          "confidence": "high",
+          "source_note": "《全元散曲》。"
+        },
+        {
+          "line": "山映斜阳天接水，芳草无情，更在斜阳外",
+          "source": "《苏幕遮·怀旧》",
+          "author": "范仲淹",
+          "dynasty": "宋",
+          "why": "斜阳接水,黄昏怀远。",
+          "confidence": "high",
+          "source_note": "《范文正公集》。"
+        },
+        {
+          "line": "月上柳梢头，人约黄昏后",
+          "source": "《生查子·元夕》",
+          "author": "欧阳修(一作朱淑真)",
+          "dynasty": "宋",
+          "why": "直书「黄昏」,月上柳梢。",
+          "confidence": "medium",
+          "source_note": "《欧阳文忠公集》收录;作者欧阳修 / 朱淑真历有争议,晋升前请酌定署名。"
+        }
+      ]
+    },
+    {
+      "id": "hai",
+      "name": "亥时",
+      "alias": "人定",
+      "range": [21, 23],
+      "candidates": [
+        {
+          "line": "海上生明月，天涯共此时",
+          "source": "《望月怀远》",
+          "author": "张九龄",
+          "dynasty": "唐",
+          "why": "明月初生,人定共望。",
+          "confidence": "high",
+          "source_note": "《唐诗三百首》。"
+        },
+        {
+          "line": "春宵一刻值千金，花有清香月有阴",
+          "source": "《春宵》",
+          "author": "苏轼",
+          "dynasty": "宋",
+          "why": "春宵月阴,人定良夜。",
+          "confidence": "high",
+          "source_note": "《东坡全集》。"
+        },
+        {
+          "line": "何当共剪西窗烛，却话巴山夜雨时",
+          "source": "《夜雨寄北》",
+          "author": "李商隐",
+          "dynasty": "唐",
+          "why": "西窗夜话,人定灯前。",
+          "confidence": "high",
+          "source_note": "《唐诗三百首》。"
+        },
+        {
+          "line": "醉后不知天在水，满船清梦压星河",
+          "source": "《题龙阳县青草湖》",
+          "author": "唐温如",
+          "dynasty": "元",
+          "why": "清梦星河,人定之境。",
+          "confidence": "medium",
+          "source_note": "《元诗别裁集》;唐温如存世仅数首而此句真,晋升前请核。"
+        }
+      ]
+    }
+  ]
+}

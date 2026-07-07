@@ -104,6 +104,22 @@ python scripts/subset_font.py --download
 
 ---
 
+## 投稿一句诗(公共曲库贡献)
+
+诗意时钟是面向所有人的公开产品,曲库欢迎共建。为保证可信,采用「候选—审核」制:
+**你不直接改 `poems.json`,而是往候选区 `data/candidates.json` 投稿,由主编核对出处后晋升。**
+
+1. Fork 仓库,在 `data/candidates.json` 对应时辰的 `candidates` 里新增一条。字段同 poems.json
+   (`line` / `source` / `author` / `dynasty` / `why`),并**必须**补两项:
+   - `confidence`:`high`(用字与出处高度确信)或 `medium`(确为真句,但归属 / 用字 / 时辰匹配存疑);
+   - `source_note`:该句可在哪部权威选本或全集中查证(如《唐诗三百首》《全唐诗》《XX 集》)。
+2. 只投你确信真实存在、出处无误的名句。**严禁杜撰、拼接、改写;拿不准宁可不投。**
+3. 提交 PR。主编 King 会逐条人工核对,通过后手动搬进 `data/poems.json`(并重跑字体子集)。
+
+> 目标:每时辰扩至 7 句。当前候选区已备 40 句待核,见 `data/candidates.json`。
+
+---
+
 ## 部署到 GitHub Pages
 
 本项目是纯静态站点,根目录即站点根,零构建:
