@@ -22,13 +22,19 @@ poetric_clock/
 │   ├── poems.json                    # 唯一事实来源:线上曲库(v2「直书时间词」标准)
 │   ├── candidates.json               # 候选区 + archived_imagery 存档(不上线)
 │   ├── time_words.json               # 十二时辰合法时间词表(编辑标准)
-│   └── festivals.json                # 2026–2035 节令公历日期表(库生成)
+│   ├── festivals.json                # 2026–2035 节令公历日期表(库生成)
+│   └── harvest/batch-001.json        # 采收待审批次(源自语料检索,不上线,待主编晋升)
+├── corpus/                           # 外部语料 + 名录(体量大,已 gitignore,不入库)
 ├── fonts/
 │   └── LXGWWenKai-subset.woff2       # 自托管霞鹜文楷子集(127.8 KB)
 ├── scripts/
 │   ├── subset_font.py                # 字体子集化(fonttools)
-│   └── gen_festivals.py              # 节令表生成(lunardate)
+│   ├── gen_festivals.py              # 节令表生成(lunardate)
+│   ├── fetch_corpus.py               # 采收①:下载 Werneror 语料到 corpus/
+│   ├── harvest_time_words.py         # 采收②:检索时间词+去重+打分(纯函数+自检)
+│   └── annotate_batch.py             # 采收③:逐条语义标注 keep/drop(只注不裁)
 ├── docs/migration-v2.md              # v2 迁移逐句对照表(供主编审阅)
+├── docs/harvest-report.md            # 采收报告:命中量/稀缺时辰词/famous率/误命中
 ├── README.md
 └── DECISIONS.md                      # 每个非显然决定的记录
 ```
@@ -125,6 +131,50 @@ python scripts/subset_font.py --download
 3. 提交 PR。主编 King 会逐条人工核对,通过后手动搬进 `data/poems.json`(并重跑字体子集)。
 
 > 目标:每时辰扩至 7 句。当前候选区已备 40 句待核,见 `data/candidates.json`。
+
+---
+
+## 曲库采收(从语料批量检索候选)
+
+除了人工投稿,另有一条**批量检索**通道:从开源语料里机检出「字面写着时间词」的句子,
+按十二时辰归类、打分排序,产出**待审批次**供主编逐条晋升。**产物绝不自动并入
+`candidates.json` / `poems.json`**——它只是把「哪些名句可能可用」摊开给人看。
+
+**管线(闸门流程图)**
+
+```
+Werneror 语料 ──fetch_corpus.py──▶ corpus/(不入库)
+      │
+      └─harvest_time_words.py─▶ data/harvest/batch-001.json  (检索+去重+打分,source_note=待溯源)
+                                     │
+                        annotate_batch.py ▶ 逐条语义标注 keep/drop(实指时刻?只注不裁)
+                                     │
+                         主编逐句对通行本核字 ▶ 补真实出处 ▶ 手动晋升
+                                     │
+                              candidates.json ─主编核─▶ poems.json
+```
+
+**重跑方法**(需 `fonttools` 之外无额外依赖):
+
+```bash
+python scripts/fetch_corpus.py --only 先秦 汉 魏晋 南北朝 隋 唐 宋 元   # 下载语料到 corpus/(约 230MB,已 gitignore)
+python scripts/harvest_time_words.py        # 检索→ data/harvest/batch-001.json + docs/harvest-report.md
+python scripts/harvest_time_words.py --selftest   # 只跑抽取纯函数自检(3 样本)
+python scripts/annotate_batch.py            # 写回逐条 keep/drop,并入报告
+```
+
+- **语料是检索工具,不是出处**:批次内一律 `source_note=待溯源`;
+  `harvest.source_hint`(如「疑《全唐诗》,待核卷次」)仅为便于查证的**非权威线索**。
+- **打分**:`famous`(命中《唐诗三百首》/《宋词三百首》名录)> `tier1`(一线名家)> `tier2` > 句形/时代/词性。
+- **数量纪律**:每时辰取排序头部 20 条,总量 ≤ 240,宁缺毋滥;全量去重命中留在 `data/harvest.raw.jsonl`(不入库)。
+- 一次采收的统计、稀缺时辰与词、误命中抽样、人工 keep/drop 结果见 [`docs/harvest-report.md`](docs/harvest-report.md)。
+
+### 诚实条款(采收铁律)
+
+- 语料采自互联网,**含错讹与异文**;批次内任何句子**晋升前仍须由主编对通行本 / 权威选本逐句核字**——
+  改一字、错一处出处都不许带进 `poems.json`。
+- 严禁向批次掺入任何**非语料检索所得**的句子(不许「顺手补几句我记得的名句」——那是「投稿」通道的事)。
+- 采收只做**检索与逐字提取**,绝不杜撰 / 拼接 / 改写;`keep/drop` 语义标注**只注不裁**,主编终裁。
 
 ---
 
