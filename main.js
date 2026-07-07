@@ -311,6 +311,7 @@ if (typeof document !== 'undefined') {
       stage: $('#stage'),
       poem: $('#poem'),
       meta: $('#poemMeta'),
+      variant: $('#poemVariant'),
       seal: $('#seal'),
       alias: $('#cornerShichen'),
       time: $('#cornerTime'),
@@ -391,6 +392,9 @@ if (typeof document !== 'undefined') {
       const render = () => {
         renderClauses(sel.poem);
         el.meta.textContent = metaText(sel.poem);
+        // 异文夹注:落款旁小字(如「一作朱淑真」),从通行本、异说入注
+        if (sel.poem.variant_note) { el.variant.textContent = sel.poem.variant_note; el.variant.hidden = false; }
+        else { el.variant.textContent = ''; el.variant.hidden = true; }
         el.seal.textContent = sel.shichen.name.charAt(0); // 印章单字:子丑寅…
         el.seal.setAttribute('aria-label', sel.shichen.name);
         el.alias.textContent = sel.shichen.name + ' · ' + sel.shichen.alias;

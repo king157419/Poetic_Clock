@@ -1,12 +1,13 @@
-# 诗意时钟 · 网页版 v1
+# 诗意时钟 · 网页版
 
 打开页面,看到当前时辰对应的一句诗。**诗是主角,时间是配角。**
 
-一页宣纸,墨字竖排居中,一枚朱红时辰印。十二时辰各配名句,按「日期 + 时辰」确定性选诗——
-同一星期几、同一时辰,任何时刻打开都是同一句;一周之内逐日轮换,七日一循环。恒常,而非随机惊喜。深夜自动转入夜读模式。
+一页宣纸,墨字**竖排、一句一列**居中,一枚朱红时辰印。十二时辰各配名句,按「星期几 + 时辰」
+确定性选诗——同一星期几、同一时辰,任何时刻打开都是同一句;七日一循环。恒常,而非随机惊喜。
+深夜自动转入夜读模式;节日当天有节令彩蛋。
 
-> 种子里的 24 句都是可核实的古典名句,只是**占位**。这个时钟的灵魂,是你日后在阅读中
-> 亲手逐句替换进来的句子——本项目只负责把容器造好。
+> **编辑标准(v1.2)**:每句都须在字面上写着此刻(直书时间词),句中时间词以着重号标出。
+> 公共曲库由主编 King 维护,欢迎投稿(见「投稿一句诗」);曲库的灵魂,是逐句核对累积起来的可信名句。
 
 ---
 
@@ -14,18 +15,26 @@
 
 ```
 poetric_clock/
-├── index.html                     # 结构:竖排诗 + 角落配角 + 香篆弧
-├── style.css                      # 版式:宣纸/墨/印、竖排、夜读、响应式
-├── main.js                        # selectPoem 纯逻辑 + 渲染器 + 自检测试
-├── data/poems.json                # 唯一事实来源:全部诗词数据都在这里
+├── index.html                        # 结构:竖排诗 + 角落配角 + 香篆弧
+├── style.css                         # 版式:宣纸/墨/印、竖排断句、着重号、夜读、响应式
+├── main.js                           # selectPoem 纯逻辑(选诗/拆句/节令)+ 渲染器 + 自检
+├── data/
+│   ├── poems.json                    # 唯一事实来源:线上曲库(受闸门保护)
+│   ├── poems.v2.proposed.json        # v2「直书时间词」迁移提案(待主编覆盖落地)
+│   ├── candidates.json               # 候选区 + archived_imagery 存档(不上线)
+│   ├── time_words.json               # 十二时辰合法时间词表(编辑标准)
+│   └── festivals.json                # 2026–2035 节令公历日期表(库生成)
 ├── fonts/
-│   └── LXGWWenKai-subset.woff2    # 自托管霞鹜文楷子集(117.2 KB)
-├── scripts/subset_font.py         # 字体子集化脚本(fonttools)
+│   └── LXGWWenKai-subset.woff2       # 自托管霞鹜文楷子集(117.2 KB)
+├── scripts/
+│   ├── subset_font.py                # 字体子集化(fonttools)
+│   └── gen_festivals.py              # 节令表生成(lunardate)
+├── docs/migration-v2.md              # v2 迁移逐句对照表(供主编审阅)
 ├── README.md
-└── DECISIONS.md                   # 每个非显然决定的记录
+└── DECISIONS.md                      # 每个非显然决定的记录
 ```
 
-渲染层(html/css/js)**不含任何诗句文本**——一切取自 `data/poems.json`。
+渲染层(html/css/js)**不含任何诗句文本**——一切取自 `data/poems.json`(渲染时按标点拆列,数据不动)。
 
 ---
 
@@ -158,10 +167,11 @@ python scripts/subset_font.py --download
 
 1. **`data/poems.json`** —— 唯一事实来源。你替换进去的诗,原样跟着走。
 2. **`selectPoem` 纯逻辑** —— 在 `main.js` 顶部、`if (typeof document…)` 之前的一整段:
-   `shichenIndexForHour` / `poemIndexForWeekday` / `selectPoem` /
-   `shichenProgress` / `isNightHour`。它们不碰 DOM、不碰网络,输入 `(date, data)`
-   输出该时该辰的诗,确定性、可测(`runSelfTests` 也一并带走当回归测试)。
-   移植到 C / MicroPython 时,照这几十行的逻辑一比一翻译即可。
+   `shichenIndexForHour` / `poemIndexForWeekday` / `weekdayForRotation` / `dateKey` /
+   `selectPoem` / `splitClauses` / `shichenProgress` / `isNightHour` / `validateTimeWords`。
+   它们不碰 DOM、不碰网络,输入 `(date, data, festivals?)` 输出该时该辰的诗(含节令层),
+   确定性、可测(`runSelfTests` 也一并带走当回归测试)。移植到 C / MicroPython 时照译即可。
+   数据除 `poems.json` 外,再带上 `time_words.json`(编辑标准)与 `festivals.json`(节令表)。
 3. **版式规则** —— 即「产品本体」:
    - 宣纸底 `#f5f1e8` / 墨 `#2b2b2b`;唯一强调色印章红 `#a63f36` **只用在一处**(时辰印)。
    - 诗竖排、大字、居中;出处作者小字随行;时辰名与现代时间退到角落。
@@ -173,6 +183,40 @@ python scripts/subset_font.py --download
 
 ---
 
+## 编辑标准与新机制(v1.2)
+
+### 编辑标准:直书时间词
+产品定位为「每句在字面上写着此刻」(如 Literature Clock),不收纯意象贴合句。每条须填
+`time_word`:句中实际出现的时间词(如「夜半」「日当午」「人定」),它必须是 `line` 的子串,
+且属于该时辰在 [`data/time_words.json`](data/time_words.json) 的合法词表(一词只归一时辰;
+更点对应 一更戌/二更亥/三更子/四更丑/五更寅;跨档词标 `boundary`,归属待复裁)。自检两条
+硬测试把关:①`time_word` 是 `line` 子串;②属其时辰词表。渲染时该词以**着重号**(字旁加点,
+竖排点在字右)标出,墨色不用红。
+
+> 现有 `poems.json` 中约 1/3 旧句不含时间词。迁移**不直改** `poems.json`,而是产出提案
+> [`data/poems.v2.proposed.json`](data/poems.v2.proposed.json) + [`docs/migration-v2.md`](docs/migration-v2.md)
+> 逐句对照,由主编核对后**自行覆盖** `poems.json` 落地。落地前线上仍是旧库、暂不显着重号。
+
+### 节令彩蛋
+强节令句(元日/元夕/重阳…)平日**绝不出现**,只在节日当天顶替该时辰常规句、全天生效。给句子加
+可选字段 `festival`(春节/元宵/端午/七夕/中秋/重阳/除夕),带此字段者被常规选诗完全排除。
+`selectPoem(date, data, festivals)` 命中当日节日且本辰有该节日句时返回彩蛋,否则走周循环。
+
+### 节令表重新生成
+节日的公历日期由库计算(农历日期**严禁手写**)。扩展年份或重算:
+```bash
+pip install lunardate
+python scripts/gen_festivals.py     # 生成 data/festivals.json(默认 2026–2035)
+```
+脚本内置锚点断言 `2026 春节 == 2026-02-17`,不符即报错退出。改脚本内 `START/END` 可扩展年份。
+
+### 夹注体例(异文)
+正文从**通行本**,异说入注。可选字段 `variant_note`(如「一作朱淑真」),渲染为落款旁的小字注
+(字号明显小于落款、更淡、竖排,不抢主体)。已用于:秦观句正文「寒鸦万点」注「一作数点」、
+《生查子·元夕》署欧阳修注「一作朱淑真」、《登鹳雀楼》署王之涣注「一作朱斌」、《劝学》署「旧题颜真卿」。
+
+---
+
 ## 验收清单(逐项核对结果)
 
 - [x] **12 时辰 × 2 句,出处齐全,无杜撰** —— 24 句全部为可核实名句,`line/source/author/dynasty` 齐全;`data/poems.json` 顶部注明为占位。脚本校验:12 时辰、24 句、别名全对、字段无缺。
@@ -180,9 +224,19 @@ python scripts/subset_font.py --download
 - [x] **断网后本地打开仍完整渲染(字体确自托管)** —— 实测所有请求皆本地(`style.css`/`main.js`/`data/poems.json`/`fonts/…woff2`),源码无任何 `http(s)://`/CDN 引用;字体 `document.fonts.check` 为真。需经本地静态服务器(见上)。
 - [x] **字体 woff2 < 300KB**(2026-07-06 复跑确认)—— 以 `D:\conda\miniconda3\python.exe`(Python 3.13 + fonttools 4.63)重跑 `scripts/subset_font.py`:任务①复跑与 v1 逐字节一致(120,364 字节);任务③因 `poems.json` 文案微调重跑,当前产物 `LXGWWenKai-subset.woff2` = **117.2 KB / 120,028 字节 / 554 字形**(含竖排标点形 `vert`),341 个渲染字形校验无缺。自托管,断网刷新照常显示文楷。
 - [x] **无 console 报错** —— 加载与交互全程控制台**无警告/报错**,无失败请求。
-- [x] **手机竖屏与桌面横屏两种布局都成立** —— 桌面 1280×800:诗 64px、居中、占屏 16.6%(留白 83%),无溢出;手机 390×844:诗约 34px、居中、占屏 19.3%,香篆弧与角落不重叠,无溢出。全页唯一红元素为印章。
+- [x] **手机竖屏与桌面横屏两种布局都成立** —— 桌面 1280×800:诗居中无溢出;手机 390×844:诗居中、字号自适应、无溢出。全页唯一红元素为印章。
 
-测试环境:Windows 11 + Python 3.13(`D:\conda\miniconda3`)+ fonttools 4.63;浏览器经内置预览引擎(Chromium)核验。子集给定相同输入可逐字节复现(v1 便携 3.12 与 v1.1 conda 3.13 对同一数据均得 120,364 字节;文案微调后为 120,028 字节)。
+**v1.2 编辑标准与排版(2026-07-07):**
+
+- [x] **竖排一句一列,句内绝不折行(修半句截断)** —— `splitClauses` 按标点拆句,每列 `white-space:nowrap`;右起向左;`fitFont` 以最长句装进列高自适应字号(上限80/下限22px),`resize` 重算。实测桌面 72.9px / 手机 50.8px,右起向左、落款在左、无溢出。
+- [x] **拆句纯函数入自检 + 长度校验** —— `splitClauses` 逗号/顿号/问号/三句词各一例;单句 >12 字警告、>16 字数据错误。
+- [x] **直书时间词标准 + 校验 + 着重号** —— `time_words.json`(80 词全表唯一);两条硬测试(`time_word` 是 `line` 子串 / 属其时辰词表)对提案文件校验 **25/0/0**;着重号墨色、竖排字右、非红。
+- [x] **正库迁移走闸门(不直改 poems.json)** —— `poems.v2.proposed.json`(12×2 常规 + 1 重阳彩蛋,全过 v2 校验)+ `migration-v2.md` 逐句对照;候选补 `time_word`、纯意象移入 `archived_imagery`。
+- [x] **节令彩蛋(纯函数 + 库生成日期)** —— `gen_festivals.py` 锚点 `2026春节==2026-02-17` 通过,`festivals.json` 70 日期;两条硬测试(春节注入返节日句/平日绝不出现);实测真实 2026 重阳戌时返《醉花阴》、平日返常规、全年无漏网。
+- [x] **异文夹注体例** —— `variant_note` 渲染为落款旁小字(9.9px < 落款 13.1px、更淡、竖排),已应用四处。
+- [x] **自检全量绿(浏览器 ?selftest 与 Node 双跑)** —— **21/21 通过**,无 console 报错、无失败请求。
+
+测试环境:Windows 11 + Python 3.13(`D:\conda\miniconda3`)+ fonttools 4.63 + lunardate;浏览器经内置预览引擎(Chromium)核验。字体子集给定相同输入可逐字节复现(当前 120,028 字节 / 117.2 KB)。
 
 ---
 

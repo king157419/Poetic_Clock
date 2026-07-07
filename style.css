@@ -107,6 +107,18 @@ body {
   white-space: nowrap;
 }
 
+/* 异文夹注:落款旁小字,字号明显小于落款,更淡,不抢主体 */
+.poem-variant {
+  margin: 0;
+  align-self: flex-end;
+  font-size: clamp(0.62rem, 1.5vmin, 0.8rem);
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+.poem-variant[hidden] { display: none; }
+
 /* ---------- 时辰印章:全页唯一的红 ---------- */
 .seal {
   align-self: flex-end;

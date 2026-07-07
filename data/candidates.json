@@ -4,7 +4,7 @@
     "library": "诗意时钟 · 公共曲库(候选区)",
     "curator": "King",
     "process": "候选池。每条须由主编 King 逐条人工核对出处后,手动晋升进 data/poems.json;未经核对不得并入正式曲库。confidence:high=用字与出处高度确信;medium=确为真句,但作者归属 / 用字 / 时辰匹配存疑,核对时请重点看 source_note。",
-    "contribute": "欢迎投稿:提交 PR 修改本文件,在对应时辰的 candidates 里新增一条,字段同 poems.json,并须补 confidence 与 source_note(可查证的权威选本 / 全集)。严禁杜撰、拼接、改写;拿不准宁可不投。",
+    "contribute": "欢迎投稿:提交 PR 修改本文件,在对应时辰的 candidates 里新增一条,字段同 poems.json,并须补 confidence 与 source_note(可查证的权威选本 / 全集)。三条硬性须知:(1)必填 time_word——句中实际出现的时间词,须是 line 子串且属该时辰词表(见 data/time_words.json);(2)体裁放宽——诗、词、曲、歌、赋、序、文皆可,只要古典且可核实;(3)异文入注——正文从通行本,异说写入 variant_note(如「一作朱淑真」),不改正文。严禁杜撰、拼接、改写;拿不准宁可不投。",
     "note": "本文件不被网页读取、不影响渲染,仅作曲库扩充的待审区。v2:每条已补 time_word;不合「直书时间词」标准的纯意象句移入 archived_imagery(不删,存档备查)。目标:每时辰扩至 7 句合规名句。"
   },
   "shichen": [
@@ -258,7 +258,7 @@
           "time_word_note": "「斜阳」属酉时,待主编复裁归属"
         },
         {
-          "line": "斜阳外，寒鸦数点，流水绕孤村",
+          "line": "斜阳外，寒鸦万点，流水绕孤村",
           "source": "《满庭芳》",
           "author": "秦观",
           "dynasty": "宋",
@@ -266,7 +266,8 @@
           "confidence": "high",
           "source_note": "《淮海居士长短句》(满庭芳·山抹微云)。",
           "time_word": "斜阳",
-          "time_word_note": "「斜阳」属酉时,待主编复裁归属"
+          "time_word_note": "「斜阳」属酉时,待主编复裁归属",
+          "variant_note": "一作「寒鸦数点」"
         },
         {
           "line": "浮云游子意，落日故人情",
@@ -356,13 +357,14 @@
         {
           "line": "月上柳梢头，人约黄昏后",
           "source": "《生查子·元夕》",
-          "author": "欧阳修(一作朱淑真)",
+          "author": "欧阳修",
           "dynasty": "宋",
           "why": "直书「黄昏」,月上柳梢。",
           "confidence": "medium",
           "source_note": "《欧阳文忠公集》收录;作者欧阳修 / 朱淑真历有争议,晋升前请酌定署名。",
           "time_word": "黄昏",
-          "festival": "元宵"
+          "festival": "元宵",
+          "variant_note": "一作朱淑真"
         }
       ]
     },
@@ -519,7 +521,8 @@
       "dynasty": "唐",
       "why": "白日依山,正是日入。",
       "confidence": "high",
-      "source_note": "《唐诗三百首》;一作朱斌诗,通行归王之涣。"
+      "source_note": "《唐诗三百首》;一作朱斌诗,通行归王之涣。",
+      "variant_note": "一作朱斌"
     },
     {
       "shichen": "hai",
