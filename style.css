@@ -61,32 +61,35 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* ---------- 诗:竖排主角 ---------- */
+/* ---------- 诗:竖排主角。一句一列,右起向左 ---------- */
 .poem {
   writing-mode: vertical-rl;
-  text-orientation: mixed;   /* 汉字直立、全角标点走竖排形(逗号居右上) */
+  text-orientation: mixed;   /* 汉字直立、全角标点走竖排形 */
   display: flex;
-  align-items: flex-start;
-  gap: clamp(0.8rem, 2.4vmin, 1.8rem);
-  max-height: 78vh;
-  max-width: 88vw;
+  flex-direction: column;    /* 竖排下主轴=块向(右→左):各短句列右起向左排 */
+  align-items: flex-start;   /* 交叉轴=竖向:各列顶对齐(词曲长短句自然参差) */
+  gap: clamp(0.35rem, 1.3vmin, 0.9rem);
+  max-height: 86vh;
+  max-width: 92vw;
   opacity: 1;
   transition: opacity var(--fade) ease;
 }
 .poem.is-out { opacity: 0; }
 
-.poem-line {
+/* 一列 = 一短句;句内绝不折行(靠 nowrap),字号由脚本 --poem-fs 自适应 */
+.clause {
   margin: 0;
-  font-size: clamp(2.1rem, 8vmin, 4rem);
-  line-height: 1.42;               /* 竖排:控制列间距 */
-  letter-spacing: 0.14em;          /* 字距,呼吸感 */
+  white-space: nowrap;
+  font-size: var(--poem-fs, clamp(2rem, 7vmin, 3.6rem));
+  line-height: 1.36;
+  letter-spacing: 0.14em;
   font-weight: 400;
   color: var(--ink);
 }
 
 .poem-meta {
   margin: 0;
-  align-self: flex-end;            /* 落款:退到诗末(下方) */
+  align-self: flex-end;            /* 落款:排在所有诗列的左侧、底对齐 */
   font-size: clamp(0.82rem, 2.1vmin, 1.05rem);
   line-height: 1.6;
   letter-spacing: 0.1em;
@@ -193,16 +196,13 @@ body {
 #selftest .no { color: var(--seal); font-weight: 700; }
 #selftest span { color: var(--ink-soft); }
 
-/* ---------- 横屏桌面:给主角更从容的字号 ---------- */
+/* 字号已改由脚本按「最长句装进可用列高」自适应(--poem-fs),
+   故此处不再用媒体查询硬设字号;仅微调落款与竖屏留白。 */
 @media (min-width: 900px) and (orientation: landscape) {
-  .poem-line { font-size: clamp(2.8rem, 8vmin, 5rem); }
   .poem-meta { font-size: clamp(0.95rem, 2vmin, 1.15rem); }
 }
-
-/* ---------- 竖屏手机:略收字号,保证不撑破高度 ---------- */
 @media (orientation: portrait) and (max-width: 560px) {
-  .poem { max-height: 74vh; }
-  .poem-line { font-size: clamp(2rem, 9.2vmin, 3.4rem); }
+  .poem { max-height: 82vh; }
 }
 
 /* 尊重「减少动态」偏好 */

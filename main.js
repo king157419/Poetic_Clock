@@ -79,6 +79,34 @@ function isNightHour(hour) {
   return hour >= 23 || hour < 5;
 }
 
+/**
+ * 拆句(纯函数):按全角/半角断句标点(,。;、?! 及其变体)把整句拆成若干短句,
+ * 供竖排「一句一列、右起向左」渲染。返回去掉标点后的短句数组(空句略去)。
+ *   splitClauses("姑苏城外寒山寺，夜半钟声到客船") → ["姑苏城外寒山寺","夜半钟声到客船"]
+ * 单一事实来源不动——拆分只发生在渲染层,数据文件里的标点原样保留。
+ * 拆列后列断即停顿,古籍竖排本无标点,故隐去句间分隔符。
+ */
+function splitClauses(line) {
+  if (typeof line !== 'string') return [];
+  return line
+    .split(/[，。；、？！：,;?!:]+/)
+    .map(function (s) { return s.trim(); })
+    .filter(function (s) { return s.length > 0; });
+}
+
+/**
+ * 拆句后长度校验(纯函数):返回 {warn:[…], err:[…]}。
+ * 单句(拆分后)> 12 字 → 警告;> 16 字 → 数据错误(自检红灯)。
+ */
+function checkClauseLengths(line) {
+  const warn = [], err = [];
+  splitClauses(line).forEach(function (c) {
+    if (c.length > 16) err.push(c);
+    else if (c.length > 12) warn.push(c);
+  });
+  return { warn: warn, err: err };
+}
+
 /* ======================================================================
  * 自检测试(附:子时跨午夜边界)。浏览器 URL 加 ?selftest 运行;
  * Node 环境亦可 require 本文件后调用 runSelfTests()。不接触 DOM。
@@ -97,6 +125,14 @@ function runSelfTests(data) {
   let mapOk = true;
   for (const h in expect) if (shichenIndexForHour(+h) !== expect[h]) mapOk = false;
   ok('小时→时辰映射(全 24 小时)', mapOk);
+
+  // 1b) 拆句 splitClauses(纯函数):逗号 / 顿号 / 问号 / 三句词 各一例
+  ok('拆句:逗号 → 两句', splitClauses('姑苏城外寒山寺，夜半钟声到客船').length === 2);
+  ok('拆句:顿号 → 两句', splitClauses('杨柳岸、晓风残月').length === 2);
+  ok('拆句:问号 → 两句', splitClauses('问君能有几多愁？恰似一江春水向东流').length === 2);
+  ok('拆句:三句词 → 三句', splitClauses('枯藤老树昏鸦，小桥流水人家，古道西风瘦马').length === 3);
+  ok('拆句:短句内已无标点(列断即停顿)',
+    splitClauses('姑苏城外寒山寺，夜半钟声到客船').every(function (c) { return !/[，。；、？！：]/.test(c); }));
 
   if (data) {
     // 2) 子时跨午夜:同一夜 23:30 与次日 00:30 → 同一时辰、同一句(周循环下仍须成立)
@@ -147,6 +183,17 @@ function runSelfTests(data) {
     const r1 = selectPoem(new Date(2026, 6, 6, 8, 0), data);
     const r2 = selectPoem(new Date(2026, 6, 6, 8, 0), data);
     ok('相同输入结果稳定', r1.poem.line === r2.poem.line);
+
+    // 10) 拆句长度校验:>12 字警告,>16 字数据错误
+    let clauseErr = [], clauseWarn = [];
+    for (const sc of data.shichen) for (const po of sc.poems) {
+      const r = checkClauseLengths(po.line);
+      Array.prototype.push.apply(clauseErr, r.err);
+      Array.prototype.push.apply(clauseWarn, r.warn);
+    }
+    if (clauseWarn.length) console.warn('[诗意时钟] 拆句 >12 字(警告):', clauseWarn);
+    ok('拆句后无单句 > 16 字(数据错误)', clauseErr.length === 0,
+      clauseErr.length ? '超长:' + clauseErr.join('/') : (clauseWarn.length ? '(' + clauseWarn.length + ' 条 >12 字警告)' : ''));
   }
 
   const failed = results.filter(r => !r.pass);
@@ -166,7 +213,6 @@ if (typeof document !== 'undefined') {
       body: document.body,
       stage: $('#stage'),
       poem: $('#poem'),
-      line: $('#poemLine'),
       meta: $('#poemMeta'),
       seal: $('#seal'),
       alias: $('#cornerShichen'),
@@ -185,6 +231,7 @@ if (typeof document !== 'undefined') {
     let previewOffset = 0;     // 0 = 未预览;±k = 预览相对当前的第 k 个时辰
     let previewTimer = null;   // 预览 10 秒无操作自动归位
     let fadeTimer = null;
+    let lastClauses = [];      // 当前显示的短句(供窗口尺寸变化时重算字号)
 
     /* ---------- 数据加载 ---------- */
     function boot() {
@@ -237,7 +284,7 @@ if (typeof document !== 'undefined') {
       currentKey = key;
 
       const render = () => {
-        el.line.textContent = sel.poem.line;
+        renderClauses(sel.poem);
         el.meta.textContent = metaText(sel.poem);
         el.seal.textContent = sel.shichen.name.charAt(0); // 印章单字:子丑寅…
         el.seal.setAttribute('aria-label', sel.shichen.name);
@@ -261,6 +308,41 @@ if (typeof document !== 'undefined') {
       }, 380);
     }
 
+    /* ---------- 拆句成列 + 自适应字号 ---------- */
+    // 把整句拆成短句,一句一列注入 #poem(右起向左),句内 nowrap 绝不折行。
+    function renderClauses(poem) {
+      const clauses = splitClauses(poem.line);
+      lastClauses = clauses;
+      // 移除旧列(保留 #poemMeta / #seal),把新列插在落款之前
+      const old = el.poem.querySelectorAll('.clause');
+      for (let i = 0; i < old.length; i++) old[i].remove();
+      clauses.forEach(function (c) {
+        const col = document.createElement('p');
+        col.className = 'clause';
+        col.textContent = c;
+        el.poem.insertBefore(col, el.meta);
+      });
+      fitFont(clauses);
+    }
+
+    // 以「最长句装进可用列高」+「所有列装进可用宽」为准算字号,设上下限。
+    function fitFont(clauses) {
+      if (!clauses || !clauses.length) return;
+      let maxChars = 1;
+      for (let i = 0; i < clauses.length; i++) maxChars = Math.max(maxChars, clauses[i].length);
+      const n = clauses.length;
+      const availH = window.innerHeight * 0.74;   // 竖向可用(留白 + 落款余量)
+      const availW = window.innerWidth * 0.82;    // 横向可用
+      const CHAR_PITCH = 1.16;  // 每字竖向步距 ≈ 字号×(1 + 字距 0.14 + 余量)
+      const COL_PITCH = 1.5;    // 每列横向步距 ≈ 字号×(行高 + 列距)
+      const META_COLS = 2.2;    // 落款 + 印章 + 间隙约占的列数
+      const byHeight = availH / (maxChars * CHAR_PITCH);
+      const byWidth = availW / ((n + META_COLS) * COL_PITCH);
+      const MIN = 22, MAX = 80;  // px:下限保手机可读,上限维持桌面现观感
+      const fs = Math.max(MIN, Math.min(MAX, byHeight, byWidth));
+      el.poem.style.setProperty('--poem-fs', fs.toFixed(1) + 'px');
+    }
+
     /* ---------- 香篆细弧 ---------- */
     function setArc(p) {
       if (!el.arc) return;
@@ -281,6 +363,13 @@ if (typeof document !== 'undefined') {
         if (x < 0.4) nudge(-1);          // 左区:上一个时辰
         else if (x > 0.6) nudge(1);      // 右区:下一个时辰
         else resetPreview();             // 中区:回到当前
+      });
+
+      // 窗口尺寸变化 → 以最长句重算字号
+      let rz = null;
+      window.addEventListener('resize', function () {
+        clearTimeout(rz);
+        rz = setTimeout(function () { fitFont(lastClauses); }, 120);
       });
     }
 
@@ -348,6 +437,6 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
     selectPoem, shichenIndexForHour, shichenProgress, poemIndexForWeekday,
-    isNightHour, runSelfTests
+    isNightHour, splitClauses, checkClauseLengths, runSelfTests
   };
 }
