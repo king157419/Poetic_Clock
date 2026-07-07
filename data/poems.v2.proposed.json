@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "type": "migration-proposal",
+    "library": "诗意时钟 · 公共曲库(v2 迁移提案)",
+    "version": "v2-proposed",
+    "curator": "King",
+    "notice": "本文件是 v2「直书时间词」标准下的迁移提案,不是正式库。结构同 poems.json:十二时辰各 2 句常规句,每句都满足 v2 校验(time_word 为 line 子串且属所属时辰词表)。现库已合格的句子原样保留并补 time_word;不合格的替换为符合标准的名句(体裁放宽:诗词曲歌赋序文皆可,须真实、可核实、出处作者齐全)。逐句对照见 docs/migration-v2.md。主编 King 核对后,自行将本文件覆盖为 data/poems.json(不由脚本自动落地)。",
+    "rule": "常规句每时辰 2 句,按『星期几 + 时辰』周循环选出;带 festival 字段者为节令彩蛋,被常规选诗排除,仅节日当天顶替。"
+  },
+  "shichen": [
+    {
+      "id": "zi", "name": "子时", "alias": "夜半", "range": [23, 1],
+      "poems": [
+        { "line": "姑苏城外寒山寺，夜半钟声到客船", "source": "《枫桥夜泊》", "author": "张继", "dynasty": "唐", "time_word": "夜半", "why": "直书「夜半」,子时钟声。", "migration": "保留" },
+        { "line": "更深月色半人家，北斗阑干南斗斜", "source": "《月夜》", "author": "刘方平", "dynasty": "唐", "time_word": "更深", "why": "「更深」夜半,星斗横斜。", "migration": "保留" }
+      ]
+    },
+    {
+      "id": "chou", "name": "丑时", "alias": "鸡鸣", "range": [1, 3],
+      "poems": [
+        { "line": "鸡声茅店月，人迹板桥霜", "source": "《商山早行》", "author": "温庭筠", "dynasty": "唐", "time_word": "鸡声", "why": "「鸡声」即鸡鸣,残夜早行。", "migration": "保留" },
+        { "line": "风雨如晦，鸡鸣不已", "source": "《诗经·郑风·风雨》", "author": "佚名", "dynasty": "先秦", "time_word": "鸡鸣", "why": "直书「鸡鸣」,丑时之名所自。", "migration": "保留" }
+      ]
+    },
+    {
+      "id": "yin", "name": "寅时", "alias": "平旦", "range": [3, 5],
+      "poems": [
+        { "line": "平明寻白羽，没在石棱中", "source": "《塞下曲》", "author": "卢纶", "dynasty": "唐", "time_word": "平明", "why": "「平明」即平旦,天将破晓。", "migration": "保留" },
+        { "line": "五更鼓角声悲壮，三峡星河影动摇", "source": "《阁夜》", "author": "杜甫", "dynasty": "唐", "time_word": "五更", "why": "「五更」当寅时,残夜将尽。", "migration": "保留" }
+      ]
+    },
+    {
+      "id": "mao", "name": "卯时", "alias": "日出", "range": [5, 7],
+      "poems": [
+        { "line": "日出江花红胜火，春来江水绿如蓝", "source": "《忆江南》", "author": "白居易", "dynasty": "唐", "time_word": "日出", "why": "直书「日出」,卯时朝晖。", "migration": "保留" },
+        { "line": "东边日出西边雨，道是无晴却有晴", "source": "《竹枝词》", "author": "刘禹锡", "dynasty": "唐", "time_word": "日出", "why": "直书「日出」,卯时晴雨。", "migration": "保留" }
+      ]
+    },
+    {
+      "id": "chen", "name": "辰时", "alias": "食时", "range": [7, 9],
+      "poems": [
+        { "line": "晨起动征铎，客行悲故乡", "source": "《商山早行》", "author": "温庭筠", "dynasty": "唐", "time_word": "晨", "why": "「晨」起启程,食时在途。(替换「故人具鸡黍」:原句无直书时间词)", "migration": "替换" },
+        { "line": "朝辞白帝彩云间，千里江陵一日还", "source": "《早发白帝城》", "author": "李白", "dynasty": "唐", "time_word": "朝", "why": "「朝」发之时,晨光在途。", "migration": "保留(补 time_word)" }
+      ]
+    },
+    {
+      "id": "si", "name": "巳时", "alias": "隅中", "range": [9, 11],
+      "poems": [
+        { "line": "酒困路长惟欲睡，日高人渴漫思茶", "source": "《浣溪沙·簌簌衣巾落枣花》", "author": "苏轼", "dynasty": "宋", "time_word": "日高", "why": "「日高」人渴,近午未午的隅中。(替换「接天莲叶」:原句无直书时间词)", "migration": "替换" },
+        { "line": "日高睡足犹慵起，小阁重衾不怕寒", "source": "《香炉峰下新卜山居草堂初成偶题东壁》", "author": "白居易", "dynasty": "唐", "time_word": "日高", "why": "「日高」睡足,巳时慵起。(替换「迟日江山丽」:原句无直书时间词)", "migration": "替换" }
+      ]
+    },
+    {
+      "id": "wu", "name": "午时", "alias": "日中", "range": [11, 13],
+      "poems": [
+        { "line": "锄禾日当午，汗滴禾下土", "source": "《悯农》", "author": "李绅", "dynasty": "唐", "time_word": "日当午", "why": "直书「日当午」,日中之极。", "migration": "保留" },
+        { "line": "日午独觉无余声，山童隔竹敲茶臼", "source": "《夏昼偶作》", "author": "柳宗元", "dynasty": "唐", "time_word": "日午", "why": "直书「日午」,午睡方觉。(替换「绿树阴浓夏日长」:原句无直书时间词)", "migration": "替换" }
+      ]
+    },
+    {
+      "id": "wei", "name": "未时", "alias": "日昳", "range": [13, 15],
+      "poems": [
+        { "line": "纸屏石枕竹方床，手倦抛书午梦长", "source": "《夏日登车盖亭》", "author": "蔡确", "dynasty": "宋", "time_word": "午梦", "why": "「午梦」长,日昳倦读。(替换「日长睡起」:原句无直书时间词。午梦为跨午/未界词,详见词表)", "migration": "替换" },
+        { "line": "午枕花前簟欲流，日催红影上帘钩", "source": "《午枕》", "author": "王安石", "dynasty": "宋", "time_word": "午枕", "why": "「午枕」花前,日昳小憩。(替换「偷得浮生半日闲」:原句无直书时间词。午枕为跨午/未界词)", "migration": "替换" }
+      ]
+    },
+    {
+      "id": "shen", "name": "申时", "alias": "晡时", "range": [15, 17],
+      "poems": [
+        { "line": "返景入深林，复照青苔上", "source": "《鹿柴》", "author": "王维", "dynasty": "唐", "time_word": "返景", "why": "「返景」入林,晡时斜光。", "migration": "保留(补 time_word)" },
+        { "line": "过尽千帆皆不是，斜晖脉脉水悠悠", "source": "《望江南》", "author": "温庭筠", "dynasty": "唐", "time_word": "斜晖", "why": "「斜晖」脉脉,日已西斜。(斜晖为跨申/酉界词)", "migration": "保留(补 time_word)" }
+      ]
+    },
+    {
+      "id": "you", "name": "酉时", "alias": "日入", "range": [17, 19],
+      "poems": [
+        { "line": "大漠孤烟直，长河落日圆", "source": "《使至塞上》", "author": "王维", "dynasty": "唐", "time_word": "落日", "why": "「落日」圆,正是日入。", "migration": "保留(补 time_word)" },
+        { "line": "一道残阳铺水中，半江瑟瑟半江红", "source": "《暮江吟》", "author": "白居易", "dynasty": "唐", "time_word": "残阳", "why": "「残阳」铺水,日入江上。", "migration": "保留(补 time_word)" }
+      ]
+    },
+    {
+      "id": "xu", "name": "戌时", "alias": "黄昏", "range": [19, 21],
+      "poems": [
+        { "line": "夕阳西下，断肠人在天涯", "source": "《天净沙·秋思》", "author": "马致远", "dynasty": "元", "time_word": "夕阳", "why": "「夕阳」西下,黄昏断肠。(替换《醉花阴》常规位:后者转为重阳彩蛋。夕阳为跨酉/戌界词)", "migration": "替换(补位)" },
+        { "line": "移舟泊烟渚，日暮客愁新", "source": "《宿建德江》", "author": "孟浩然", "dynasty": "唐", "time_word": "日暮", "why": "直书「日暮」,黄昏客愁。", "migration": "保留(补 time_word)" },
+        { "line": "东篱把酒黄昏后，有暗香盈袖", "source": "《醉花阴》", "author": "李清照", "dynasty": "宋", "time_word": "黄昏", "festival": "重阳", "why": "「黄昏」把酒,重阳咏怀。此为重阳彩蛋,平日不出现,仅重阳当天顶替戌时常规句。", "migration": "转为节令彩蛋" }
+      ]
+    },
+    {
+      "id": "hai", "name": "亥时", "alias": "人定", "range": [21, 23],
+      "poems": [
+        { "line": "奄奄黄昏后，寂寂人定初", "source": "《孔雀东南飞》", "author": "佚名", "dynasty": "汉", "time_word": "人定", "why": "直书「人定」,亥时初静。", "migration": "保留(补 time_word)" },
+        { "line": "夜阑更秉烛，相对如梦寐", "source": "《羌村三首》", "author": "杜甫", "dynasty": "唐", "time_word": "夜阑", "why": "「夜阑」秉烛,人定灯前。(替换「天阶夜色凉如水」:原句无直书时间词。夜阑为跨亥/子界词)", "migration": "替换" }
+      ]
+    }
+  ]
+}

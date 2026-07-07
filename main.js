@@ -227,11 +227,11 @@ function runSelfTests(data, opts) {
 
   // §2 编辑标准硬测试:对「标准数据集」(默认取迁移提案 opts.standard)校验 time_word。
   if (opts.timeWords) {
-    let dup = 0; const seen = {};
+    let dup = 0, wordCount = 0; const seen = {};
     (opts.timeWords.shichen || []).forEach(function (s) {
-      (s.words || []).forEach(function (w) { if (seen[w.word]) dup++; else seen[w.word] = s.id; });
+      (s.words || []).forEach(function (w) { wordCount++; if (seen[w.word]) dup++; else seen[w.word] = s.id; });
     });
-    ok('时间词表:一词只归一时辰', dup === 0, dup ? dup + ' 词跨档重复' : '(77 词唯一)');
+    ok('时间词表:一词只归一时辰', dup === 0, dup ? dup + ' 词跨档重复' : '(' + wordCount + ' 词唯一)');
 
     const std = opts.standard || data;
     const v = validateTimeWords(std, opts.timeWords);
