@@ -145,7 +145,7 @@ python scripts/subset_font.py --download
 
 `index.html` 就在仓库根目录、纯静态、无构建步骤,Vercel 可零配置直接导入:
 
-1. 在 Vercel **Add New… → Project → Import** 选中本仓库(`king157419/Poetric_Clock`)。
+1. 在 Vercel **Add New… → Project → Import** 选中本仓库(`king157419/Poetic_Clock`)。
 2. **Framework Preset 选 `Other`**(无需 Build Command / Output Directory),点 **Deploy** 即可。
 
 > 无需安装 vercel CLI、无需命令行登录——导入与授权都在浏览器里完成。后续 push 到 `main` 会自动重新部署。
