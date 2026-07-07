@@ -318,6 +318,7 @@ if (typeof document !== 'undefined') {
       body: document.body,
       stage: $('#stage'),
       poem: $('#poem'),
+      colophon: $('#colophon'),
       meta: $('#poemMeta'),
       variant: $('#poemVariant'),
       seal: $('#seal'),
@@ -338,6 +339,7 @@ if (typeof document !== 'undefined') {
     let previewTimer = null;   // 预览 10 秒无操作自动归位
     let fadeTimer = null;
     let lastClauses = [];      // 当前显示的短句(供窗口尺寸变化时重算字号)
+    let lastPoem = null;       // 当前诗(供重算字号时计入落款列竖向占位)
     let FESTIVALS = null;      // 节日表 { "YYYY-MM-DD": ["节日名"] }(可选)
 
     /* ---------- 数据加载 ---------- */
@@ -429,8 +431,9 @@ if (typeof document !== 'undefined') {
     function renderClauses(poem) {
       const clauses = splitClauses(poem.line);
       lastClauses = clauses;
+      lastPoem = poem;
       const tw = poem.time_word || '';
-      // 移除旧列(保留 #poemMeta / #seal),把新列插在落款之前
+      // 移除旧列(保留 #colophon 整块),把新列插在落款块之前
       const old = el.poem.querySelectorAll('.clause');
       for (let i = 0; i < old.length; i++) old[i].remove();
       clauses.forEach(function (c) {
@@ -448,13 +451,15 @@ if (typeof document !== 'undefined') {
         } else {
           col.textContent = c;
         }
-        el.poem.insertBefore(col, el.meta);
+        el.poem.insertBefore(col, el.colophon);
       });
-      fitFont(clauses);
+      fitFont(clauses, poem);
     }
 
     // 以「最长句装进可用列高」+「所有列装进可用宽」为准算字号,设上下限。
-    function fitFont(clauses) {
+    // 落款错落后落款列自顶端下沉 2 字位再向下延展,短诗+长落款时其竖向占位可能超过正文列,
+    // 故取「正文列」与「下沉落款列」两者较高者约束高度,确保整体(含印章)不被裁。
+    function fitFont(clauses, poem) {
       if (!clauses || !clauses.length) return;
       let maxChars = 1;
       for (let i = 0; i < clauses.length; i++) maxChars = Math.max(maxChars, clauses[i].length);
@@ -463,8 +468,13 @@ if (typeof document !== 'undefined') {
       const availW = window.innerWidth * 0.82;    // 横向可用
       const CHAR_PITCH = 1.16;  // 每字竖向步距 ≈ 字号×(1 + 字距 0.14 + 余量)
       const COL_PITCH = 1.5;    // 每列横向步距 ≈ 字号×(行高 + 列距)
-      const META_COLS = 2.2;    // 落款 + 印章 + 间隙约占的列数
-      const byHeight = availH / (maxChars * CHAR_PITCH);
+      const META_COLS = 1.5;    // 落款错落后:落款/夹注/印同占一列 + 间隙 ≈ 1.5 列
+      // 落款列竖向占位(单位=正文字号):下沉 2 + 落款字数×0.54(半字号) + 夹注字数×0.39 + 印章气口 1.2
+      const metaLen = poem ? ('〔' + poem.dynasty + '〕' + poem.author + '　' + poem.source).length : 0;
+      const varLen = poem && poem.variant_note ? poem.variant_note.length : 0;
+      const colophonRows = 2 + metaLen * 0.54 + varLen * 0.39 + 1.2;
+      const tallestRows = Math.max(maxChars * CHAR_PITCH, colophonRows);
+      const byHeight = availH / tallestRows;
       const byWidth = availW / ((n + META_COLS) * COL_PITCH);
       const MIN = 22, MAX = 80;  // px:下限保手机可读,上限维持桌面现观感
       const fs = Math.max(MIN, Math.min(MAX, byHeight, byWidth));
@@ -497,7 +507,7 @@ if (typeof document !== 'undefined') {
       let rz = null;
       window.addEventListener('resize', function () {
         clearTimeout(rz);
-        rz = setTimeout(function () { fitFont(lastClauses); }, 120);
+        rz = setTimeout(function () { fitFont(lastClauses, lastPoem); }, 120);
       });
     }
 

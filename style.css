@@ -97,41 +97,51 @@ body {
   -webkit-text-emphasis-position: over right;
 }
 
+/* ---------- 落款错落(A2):落款/夹注/印同为一列,整体下沉于正文之下 ---------- */
+/* 正文诗句列齐头(工整)不动;落款起笔下沉 = 正文字号 × 2,以相对单位挂在 --poem-fs 上,
+   正文字号自适应时下沉随之缩放(不写死 px)。竖排下 flex-row 主轴 = 自上而下,
+   故 落款 → 夹注 → 印章 依次向下、同居一列;印缀于落款列末端。 */
+.colophon {
+  align-self: flex-start;                              /* 顶端起算,由 margin-top 下推 */
+  margin-top: calc(var(--poem-fs, 2.6rem) * 2);        /* ← 下沉 = 正文字号 × 2(相对) */
+  display: flex;
+  flex-direction: row;                                 /* 竖排:主轴自上而下 */
+  align-items: center;                                 /* 印居落款列中缝 */
+  gap: calc(var(--poem-fs, 2.6rem) * 0.26);
+}
+
+/* 落款:字号约为正文一半;墨色稍淡——沿用既有「淡墨」token,不引入新颜色 */
 .poem-meta {
   margin: 0;
-  align-self: flex-end;            /* 落款:排在所有诗列的左侧、底对齐 */
-  font-size: clamp(0.82rem, 2.1vmin, 1.05rem);
-  line-height: 1.6;
-  letter-spacing: 0.1em;
+  font-size: calc(var(--poem-fs, 2.6rem) * 0.5);
+  line-height: 1.5;
+  letter-spacing: 0.08em;
   color: var(--ink-soft);
   white-space: nowrap;
 }
 
-/* 异文夹注:落款旁小字,字号明显小于落款,更淡,不抢主体 */
+/* 异文夹注:比落款再小一档,更淡,随落款同列 */
 .poem-variant {
   margin: 0;
-  align-self: flex-end;
-  font-size: clamp(0.62rem, 1.5vmin, 0.8rem);
+  font-size: calc(var(--poem-fs, 2.6rem) * 0.36);
   line-height: 1.5;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: var(--ink-faint);
   white-space: nowrap;
 }
 .poem-variant[hidden] { display: none; }
 
-/* ---------- 时辰印章:全页唯一的红 ---------- */
+/* ---------- 时辰印章:全页唯一的红。缀于落款列末端下方,尺寸随正文缩放 ---------- */
 .seal {
-  align-self: flex-end;
   flex: none;
-  width: clamp(1.7rem, 4.6vmin, 2.5rem);
-  height: clamp(1.7rem, 4.6vmin, 2.5rem);
-  margin-top: clamp(0.6rem, 1.8vmin, 1.2rem);
+  width: calc(var(--poem-fs, 2.6rem) * 0.62);
+  height: calc(var(--poem-fs, 2.6rem) * 0.62);
   display: grid;
   place-items: center;
   writing-mode: horizontal-tb;
   background: var(--seal);
   color: var(--paper);             /* 阳文:纸色字压在朱底上 */
-  font-size: clamp(1rem, 2.8vmin, 1.5rem);
+  font-size: calc(var(--poem-fs, 2.6rem) * 0.42);
   letter-spacing: 0;
   border-radius: 2px;
   user-select: none;
@@ -220,9 +230,7 @@ body {
 
 /* 字号已改由脚本按「最长句装进可用列高」自适应(--poem-fs),
    故此处不再用媒体查询硬设字号;仅微调落款与竖屏留白。 */
-@media (min-width: 900px) and (orientation: landscape) {
-  .poem-meta { font-size: clamp(0.95rem, 2vmin, 1.15rem); }
-}
+/* 落款字号已改为随正文自适应(--poem-fs × 0.5),不再按视口硬设 */
 @media (orientation: portrait) and (max-width: 560px) {
   .poem { max-height: 82vh; }
 }

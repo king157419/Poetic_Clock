@@ -22,9 +22,12 @@
 
     <!-- 诗:竖排,视觉中心的绝对主角。短句列由脚本注入(一句一列,右起向左) -->
     <section class="poem" id="poem" aria-label="此刻的诗">
-      <p class="poem-meta" id="poemMeta"></p>
-      <p class="poem-variant" id="poemVariant" hidden></p>
-      <span class="seal" id="seal" role="img" aria-label="时辰印"></span>
+      <!-- 落款错落:落款/夹注/印同为一列,整体下沉于正文之下(见 style.css .colophon) -->
+      <div class="colophon" id="colophon">
+        <p class="poem-meta" id="poemMeta"></p>
+        <p class="poem-variant" id="poemVariant" hidden></p>
+        <span class="seal" id="seal" role="img" aria-label="时辰印"></span>
+      </div>
     </section>
 
     <!-- 角落:时辰名 / 现代时间,退居其后 -->
