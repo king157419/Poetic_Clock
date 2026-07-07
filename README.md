@@ -151,11 +151,11 @@ python scripts/subset_font.py --download
 - [x] **12 时辰 × 2 句,出处齐全,无杜撰** —— 24 句全部为可核实名句,`line/source/author/dynasty` 齐全;`data/poems.json` 顶部注明为占位。脚本校验:12 时辰、24 句、别名全对、字段无缺。
 - [x] **子时跨午夜边界正确(附测试)** —— `selectPoem` 对 `hour===23` 滚日;`?selftest` 与 Node 双跑 **9/9 通过**,含「23:30 与次日 00:30 同为子时且同一句」「22:59 为亥、23:00 为子」「次夜子时轮换」。
 - [x] **断网后本地打开仍完整渲染(字体确自托管)** —— 实测所有请求皆本地(`style.css`/`main.js`/`data/poems.json`/`fonts/…woff2`),源码无任何 `http(s)://`/CDN 引用;字体 `document.fonts.check` 为真。需经本地静态服务器(见上)。
-- [x] **字体 woff2 < 300KB** —— `LXGWWenKai-subset.woff2` = **117.5 KB**(556 字形,含全部诗字+界面字+竖排标点形 `vert`)。
+- [x] **字体 woff2 < 300KB**(2026-07-06 复跑确认)—— 以 `D:\conda\miniconda3\python.exe`(Python 3.13 + fonttools 4.63)重跑 `scripts/subset_font.py`,产出 `LXGWWenKai-subset.woff2` = **117.5 KB / 120,364 字节**(556 字形,含全部诗字+界面字+竖排标点形 `vert`),字库校验无缺字。子集为自托管,断网刷新照常显示文楷。
 - [x] **无 console 报错** —— 加载与交互全程控制台**无警告/报错**,无失败请求。
 - [x] **手机竖屏与桌面横屏两种布局都成立** —— 桌面 1280×800:诗 64px、居中、占屏 16.6%(留白 83%),无溢出;手机 390×844:诗约 34px、居中、占屏 19.3%,香篆弧与角落不重叠,无溢出。全页唯一红元素为印章。
 
-测试环境:Windows 11 + 便携 Python 3.12 + fonttools 4.63;浏览器经内置预览引擎(Chromium)核验。
+测试环境:Windows 11 + Python 3.13(`D:\conda\miniconda3`)+ fonttools 4.63;浏览器经内置预览引擎(Chromium)核验。子集产物 woff2 两次(v1 便携 3.12 / v1.1 conda 3.13)重跑均为 120,364 字节,可复现。
 
 ---
 
