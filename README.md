@@ -19,7 +19,7 @@ poetric_clock/
 ├── main.js                        # selectPoem 纯逻辑 + 渲染器 + 自检测试
 ├── data/poems.json                # 唯一事实来源:全部诗词数据都在这里
 ├── fonts/
-│   └── LXGWWenKai-subset.woff2    # 自托管霞鹜文楷子集(117.5 KB)
+│   └── LXGWWenKai-subset.woff2    # 自托管霞鹜文楷子集(117.2 KB)
 ├── scripts/subset_font.py         # 字体子集化脚本(fonttools)
 ├── README.md
 └── DECISIONS.md                   # 每个非显然决定的记录
@@ -136,8 +136,19 @@ python scripts/subset_font.py --download
    **Branch** 选 `main`、目录 `/ (root)`,保存。
 4. 等一两分钟,访问 `https://<你的用户名>.github.io/<仓库名>/`。
 
-> 确保 `fonts/LXGWWenKai-subset.woff2` 一起入库(它才 117.5KB)。源 TTF(约 25MB)
+> 确保 `fonts/LXGWWenKai-subset.woff2` 一起入库(它才 117.2KB)。源 TTF(约 25MB)
 > **不必**入库,重跑子集时用 `--download` 现取即可。
+
+---
+
+## 部署到 Vercel(推荐,零配置)
+
+`index.html` 就在仓库根目录、纯静态、无构建步骤,Vercel 可零配置直接导入:
+
+1. 在 Vercel **Add New… → Project → Import** 选中本仓库(`king157419/Poetric_Clock`)。
+2. **Framework Preset 选 `Other`**(无需 Build Command / Output Directory),点 **Deploy** 即可。
+
+> 无需安装 vercel CLI、无需命令行登录——导入与授权都在浏览器里完成。后续 push 到 `main` 会自动重新部署。
 
 ---
 
@@ -167,11 +178,11 @@ python scripts/subset_font.py --download
 - [x] **12 时辰 × 2 句,出处齐全,无杜撰** —— 24 句全部为可核实名句,`line/source/author/dynasty` 齐全;`data/poems.json` 顶部注明为占位。脚本校验:12 时辰、24 句、别名全对、字段无缺。
 - [x] **子时跨午夜边界正确(附测试)** —— `selectPoem` 对 `hour===23` 滚日(周循环下仍成立);`?selftest` 与 Node 双跑 **10/10 通过**,含「23:30 与次日 00:30 同为子时且同一句」「22:59 为亥、23:00 为子」「同星期几+同时辰隔周同句」「午时一周覆盖全部句」「十二时辰×七星期几均有完整句」。
 - [x] **断网后本地打开仍完整渲染(字体确自托管)** —— 实测所有请求皆本地(`style.css`/`main.js`/`data/poems.json`/`fonts/…woff2`),源码无任何 `http(s)://`/CDN 引用;字体 `document.fonts.check` 为真。需经本地静态服务器(见上)。
-- [x] **字体 woff2 < 300KB**(2026-07-06 复跑确认)—— 以 `D:\conda\miniconda3\python.exe`(Python 3.13 + fonttools 4.63)重跑 `scripts/subset_font.py`,产出 `LXGWWenKai-subset.woff2` = **117.5 KB / 120,364 字节**(556 字形,含全部诗字+界面字+竖排标点形 `vert`),字库校验无缺字。子集为自托管,断网刷新照常显示文楷。
+- [x] **字体 woff2 < 300KB**(2026-07-06 复跑确认)—— 以 `D:\conda\miniconda3\python.exe`(Python 3.13 + fonttools 4.63)重跑 `scripts/subset_font.py`:任务①复跑与 v1 逐字节一致(120,364 字节);任务③因 `poems.json` 文案微调重跑,当前产物 `LXGWWenKai-subset.woff2` = **117.2 KB / 120,028 字节 / 554 字形**(含竖排标点形 `vert`),341 个渲染字形校验无缺。自托管,断网刷新照常显示文楷。
 - [x] **无 console 报错** —— 加载与交互全程控制台**无警告/报错**,无失败请求。
 - [x] **手机竖屏与桌面横屏两种布局都成立** —— 桌面 1280×800:诗 64px、居中、占屏 16.6%(留白 83%),无溢出;手机 390×844:诗约 34px、居中、占屏 19.3%,香篆弧与角落不重叠,无溢出。全页唯一红元素为印章。
 
-测试环境:Windows 11 + Python 3.13(`D:\conda\miniconda3`)+ fonttools 4.63;浏览器经内置预览引擎(Chromium)核验。子集产物 woff2 两次(v1 便携 3.12 / v1.1 conda 3.13)重跑均为 120,364 字节,可复现。
+测试环境:Windows 11 + Python 3.13(`D:\conda\miniconda3`)+ fonttools 4.63;浏览器经内置预览引擎(Chromium)核验。子集给定相同输入可逐字节复现(v1 便携 3.12 与 v1.1 conda 3.13 对同一数据均得 120,364 字节;文案微调后为 120,028 字节)。
 
 ---
 

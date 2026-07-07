@@ -56,7 +56,7 @@
 - **背景**:要求自托管霞鹜文楷,并用 `fonttools` 写 `scripts/subset_font.py` 子集化到 < 300KB。构建机(Windows)只有商店占位版 python,无 pip/fonttools。
 - **选项**:(a) 改用 Node 版子集器现造 woff2——但交付脚本仍须是 Python,那样脚本没被真正跑通验证;(b) 临时引入官方**便携版 Python**(embeddable zip)装 fonttools+brotli,真跑 `subset_font.py`。
 - **选择**:(b)。便携 Python 只用于本机生成/验证,不入库;`subset_font.py` 因此是**真跑通并产出过 woff2** 的脚本,而非纸面代码。脚本还加了 `--download` 可自动拉源字体、并强制 UTF-8 输出以适配 Windows 控制台。
-- **代价**:源 TTF(约 25MB)不入库,重跑子集需先备好源字体(或加 `--download` 现取)。产物 `fonts/LXGWWenKai-subset.woff2` 为 117.5KB。
+- **代价**:源 TTF(约 25MB)不入库,重跑子集需先备好源字体(或加 `--download` 现取)。产物 `fonts/LXGWWenKai-subset.woff2` 约 117KB(v1.1 文案微调后为 120,028 字节)。
 
 ## 9. 夜读模式区间与实现
 
