@@ -230,10 +230,10 @@ python scripts/gen_festivals.py     # 生成 data/festivals.json(默认 2026–2
 - [x] **竖排一句一列,句内绝不折行(修半句截断)** —— `splitClauses` 按标点拆句,每列 `white-space:nowrap`;右起向左;`fitFont` 以最长句装进列高自适应字号(上限80/下限22px),`resize` 重算。实测桌面 72.9px / 手机 50.8px,右起向左、落款在左、无溢出。
 - [x] **拆句纯函数入自检 + 长度校验** —— `splitClauses` 逗号/顿号/问号/三句词各一例;单句 >12 字警告、>16 字数据错误。
 - [x] **直书时间词标准 + 校验 + 着重号** —— `time_words.json`(80 词全表唯一);两条硬测试(`time_word` 是 `line` 子串 / 属其时辰词表)对提案文件校验 **25/0/0**;着重号墨色、竖排字右、非红。
-- [x] **正库迁移走闸门(不直改 poems.json)** —— `poems.v2.proposed.json`(12×2 常规 + 1 重阳彩蛋,全过 v2 校验)+ `migration-v2.md` 逐句对照;候选补 `time_word`、纯意象移入 `archived_imagery`。
+- [x] **正库迁移走闸门(先提案、不直改 poems.json)** —— 迁移提案 `poems.v2.proposed.json`(12×2 常规 + 1 重阳彩蛋,全过 v2 校验)经主编核定后覆盖为 `data/poems.json`,**提案文件已于落地时消费移除**;`migration-v2.md` 存逐句对照;候选补 `time_word`、纯意象移入 `archived_imagery`。
 - [x] **节令彩蛋(纯函数 + 库生成日期)** —— `gen_festivals.py` 锚点 `2026春节==2026-02-17` 通过,`festivals.json` 70 日期;两条硬测试(春节注入返节日句/平日绝不出现);实测真实 2026 重阳戌时返《醉花阴》、平日返常规、全年无漏网。
 - [x] **异文夹注体例** —— `variant_note` 渲染为落款旁小字(9.9px < 落款 13.1px、更淡、竖排),已应用四处。
-- [x] **自检全量绿(浏览器 ?selftest 与 Node 双跑)** —— **21/21 通过**,无 console 报错、无失败请求。
+- [x] **自检全量绿(浏览器 ?selftest 与 Node 双跑)** —— **22/22 通过**(迁移落地后增「曲库每条都有 time_word」覆盖测试),无 console 报错、无失败请求。
 
 测试环境:Windows 11 + Python 3.13(`D:\conda\miniconda3`)+ fonttools 4.63 + lunardate;浏览器经内置预览引擎(Chromium)核验。字体子集给定相同输入可逐字节复现(v2 迁移后 130,896 字节 / 127.8 KB)。
 
