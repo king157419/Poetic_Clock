@@ -9,6 +9,10 @@ __pycache__/
 *.pyc
 *.pyo
 
+# 采收管线:外部语料(体量大,不入库)与原始全量命中(可复现,不入库)
+corpus/
+data/harvest.raw.jsonl
+
 # 依赖 / 部署工具产物
 node_modules/
 .vercel/
