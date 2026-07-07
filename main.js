@@ -22,26 +22,19 @@ function shichenIndexForHour(hour) {
 }
 
 /**
- * 把「本地年 / 月 / 日」折算成稳定整数日序。
- * 用 Date.UTC 取该日 00:00(UTC)的毫秒再除以一天——只为得到一个
- * 随日期 +1 递增的整数,不受本地时区、夏令时抖动影响。
+ * 周循环诗序:index = 星期几 % 该时辰句数。
+ * 星期几取 JS `Date.getDay()`:0=周日, 1=周一, …, 6=周六。
+ * 于是「同一星期几 + 同一时辰」永远显示同一句;句数不足 7 的时辰在一周内
+ * 自然重复(如 2 句时索引走 0,1,0,1,0,1,0),不会越界报错。
+ * (v1.1:由 v1 的「按年内第几天」轮换改为按星期几轮换。)
  */
-function dayOrdinal(year, monthIndex, day) {
-  return Math.floor(Date.UTC(year, monthIndex, day) / 86400000);
-}
-
-/**
- * 确定性诗序:日序 + 时辰序,对该时辰诗数取模。
- * 叠加时辰序 idx,只是让各时辰不在同一天整齐翻页、轮换更耐看;
- * 对「同日同辰恒显同一句」没有任何影响。
- */
-function poemIndexFor(ord, shichenIndex, count) {
-  return (((ord + shichenIndex) % count) + count) % count;
+function poemIndexForWeekday(weekday, count) {
+  return weekday % count;
 }
 
 /**
  * 纯函数:给定时刻 date 与数据 data,返回此刻此辰应显示的诗。
- * @returns {{shichen, poem, shichenIndex, poemIndex, dayOrdinal}|null}
+ * @returns {{shichen, poem, shichenIndex, poemIndex, weekday}|null}
  */
 function selectPoem(date, data) {
   if (!data || !Array.isArray(data.shichen) || data.shichen.length !== 12) return null;
@@ -51,23 +44,22 @@ function selectPoem(date, data) {
   const shichen = data.shichen[shichenIndex];
   if (!shichen || !Array.isArray(shichen.poems) || shichen.poems.length === 0) return null;
 
-  // 轮换用的「诗日」。子时 23:00–00:59 属于同一个「子时之夜」,应显示同一句。
-  // 故当 hour === 23 时,把日期向后滚一天,使 23:30 与次日 00:30 折算出
-  // 相同的日序、命中同一句;每晚 23:00 才轮换到新的子时诗。
-  let y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
+  // 轮换键 = 星期几(getDay,0=周日)。子时 23:00–00:59 属于同一个「子时之夜」,
+  // 应显示同一句:当 hour === 23 时把日期滚到次日,使 23:30 与次日 00:30 落在
+  // 相同的 getDay 上、命中同一句(该子时归入它所引向的清晨那一天的星期)。
+  let rollDate = date;
   if (hour === 23) {
-    const rolled = new Date(y, m, d + 1);
-    y = rolled.getFullYear(); m = rolled.getMonth(); d = rolled.getDate();
+    rollDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
   }
-  const ord = dayOrdinal(y, m, d);
-  const poemIndex = poemIndexFor(ord, shichenIndex, shichen.poems.length);
+  const weekday = rollDate.getDay(); // 0=周日 … 6=周六
+  const poemIndex = poemIndexForWeekday(weekday, shichen.poems.length);
 
   return {
     shichen: shichen,
     poem: shichen.poems[poemIndex],
     shichenIndex: shichenIndex,
     poemIndex: poemIndex,
-    dayOrdinal: ord
+    weekday: weekday
   };
 }
 
@@ -107,9 +99,9 @@ function runSelfTests(data) {
   ok('小时→时辰映射(全 24 小时)', mapOk);
 
   if (data) {
-    // 2) 子时跨午夜:同一夜 23:30 与次日 00:30 → 同一时辰、同一句
-    const a = selectPoem(new Date(2026, 6, 6, 23, 30), data);   // 7/6 23:30
-    const b = selectPoem(new Date(2026, 6, 7, 0, 30), data);    // 7/7 00:30
+    // 2) 子时跨午夜:同一夜 23:30 与次日 00:30 → 同一时辰、同一句(周循环下仍须成立)
+    const a = selectPoem(new Date(2026, 6, 6, 23, 30), data);   // 周一 23:30
+    const b = selectPoem(new Date(2026, 6, 7, 0, 30), data);    // 周二 00:30(同一夜)
     ok('子时边界:23:30 与次日 00:30 同为子时', a.shichen.id === 'zi' && b.shichen.id === 'zi');
     ok('子时边界:23:30 与次日 00:30 同一句', a.poem.line === b.poem.line, a.poem.line + ' / ' + b.poem.line);
 
@@ -123,26 +115,35 @@ function runSelfTests(data) {
     const w2 = selectPoem(new Date(2026, 6, 6, 12, 58), data);
     ok('同日午时不同时刻恒显同一句', w1.poem.line === w2.poem.line, w1.poem.line);
 
-    // 5) 次日轮换:相邻两天同一午时 → 换句(诗数为 2 时应交替)
-    const d1 = selectPoem(new Date(2026, 6, 6, 12, 0), data);
-    const d2 = selectPoem(new Date(2026, 6, 7, 12, 0), data);
-    ok('次日午时轮换到另一句', d1.poem.line !== d2.poem.line, d1.poem.line + ' → ' + d2.poem.line);
+    // 5) 周循环确定性:同一星期几 + 同一时辰(相隔 7 天)→ 必然同句
+    const wk1 = selectPoem(new Date(2026, 6, 6, 12, 0), data);   // 周一 午时
+    const wk2 = selectPoem(new Date(2026, 6, 13, 12, 0), data);  // 次周一 午时
+    ok('同星期几+同午时→同句(隔周)', wk1.poem.line === wk2.poem.line && wk1.weekday === wk2.weekday,
+      '周' + wk1.weekday + ' :' + wk1.poem.line);
 
-    // 6) 子时之夜的确会次夜轮换:今夜 23:30 与明夜 23:30 → 换句
-    const n1 = selectPoem(new Date(2026, 6, 6, 23, 30), data);
-    const n2 = selectPoem(new Date(2026, 6, 7, 23, 30), data);
-    ok('次夜子时轮换到另一句', n1.poem.line !== n2.poem.line, n1.poem.line + ' → ' + n2.poem.line);
+    // 6) 子时同样按周循环:同星期几之夜的子时 → 同句(隔周)
+    const zn1 = selectPoem(new Date(2026, 6, 6, 23, 30), data);
+    const zn2 = selectPoem(new Date(2026, 6, 13, 23, 30), data);
+    ok('同星期几之夜子时→同句(隔周)', zn1.poem.line === zn2.poem.line);
 
-    // 7) 十二时辰皆可取到有效诗句
-    let allValid = true, missing = [];
+    // 7) 一周内覆盖:午时(2 句)在连续 7 天里两句都会出现
+    const seen = new Set();
+    for (let d = 5; d <= 11; d++) seen.add(selectPoem(new Date(2026, 6, d, 12, 0), data).poem.line);
+    const wuCount = data.shichen[6].poems.length;
+    ok('午时一周内覆盖到全部句', seen.size === Math.min(7, wuCount), '出现 ' + seen.size + '/' + wuCount + ' 句');
+
+    // 8) 句数不足 7 不报错:每个时辰 × 每个星期几(连续 7 天)都取到完整诗句
+    let allValid = true, bad = [];
+    const repHour = [0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21];
     for (let i = 0; i < 12; i++) {
-      const hour = i === 0 ? 0 : 2 * i - 1;
-      const s = selectPoem(new Date(2026, 6, 6, hour, 0), data);
-      if (!s || !s.poem || !s.poem.line || !s.poem.source) { allValid = false; missing.push(i); }
+      for (let d = 5; d <= 11; d++) {
+        const s = selectPoem(new Date(2026, 6, d, repHour[i], 0), data);
+        if (!s || !s.poem || !s.poem.line || !s.poem.source) { allValid = false; bad.push(i + '/' + d); }
+      }
     }
-    ok('十二时辰均取到完整诗句', allValid, missing.length ? '缺:' + missing : '');
+    ok('十二时辰 × 七星期几均取到完整诗句', allValid, bad.length ? '缺:' + bad.join(',') : '');
 
-    // 8) 越日一致:同一逻辑日多次调用结果稳定
+    // 9) 相同输入结果稳定
     const r1 = selectPoem(new Date(2026, 6, 6, 8, 0), data);
     const r2 = selectPoem(new Date(2026, 6, 6, 8, 0), data);
     ok('相同输入结果稳定', r1.poem.line === r2.poem.line);
@@ -346,7 +347,7 @@ if (typeof document !== 'undefined') {
 /* ---------- Node 导出(仅便于命令行跑测试;浏览器忽略) ---------- */
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = {
-    selectPoem, shichenIndexForHour, shichenProgress, dayOrdinal,
-    poemIndexFor, isNightHour, runSelfTests
+    selectPoem, shichenIndexForHour, shichenProgress, poemIndexForWeekday,
+    isNightHour, runSelfTests
   };
 }

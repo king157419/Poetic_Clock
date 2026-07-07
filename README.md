@@ -3,7 +3,7 @@
 打开页面,看到当前时辰对应的一句诗。**诗是主角,时间是配角。**
 
 一页宣纸,墨字竖排居中,一枚朱红时辰印。十二时辰各配名句,按「日期 + 时辰」确定性选诗——
-同一天同一时辰,任何时刻打开都是同一句,次日轮换;恒常,而非随机惊喜。深夜自动转入夜读模式。
+同一星期几、同一时辰,任何时刻打开都是同一句;一周之内逐日轮换,七日一循环。恒常,而非随机惊喜。深夜自动转入夜读模式。
 
 > 种子里的 24 句都是可核实的古典名句,只是**占位**。这个时钟的灵魂,是你日后在阅读中
 > 亲手逐句替换进来的句子——本项目只负责把容器造好。
@@ -131,7 +131,7 @@ python scripts/subset_font.py --download
 
 1. **`data/poems.json`** —— 唯一事实来源。你替换进去的诗,原样跟着走。
 2. **`selectPoem` 纯逻辑** —— 在 `main.js` 顶部、`if (typeof document…)` 之前的一整段:
-   `shichenIndexForHour` / `dayOrdinal` / `poemIndexFor` / `selectPoem` /
+   `shichenIndexForHour` / `poemIndexForWeekday` / `selectPoem` /
    `shichenProgress` / `isNightHour`。它们不碰 DOM、不碰网络,输入 `(date, data)`
    输出该时该辰的诗,确定性、可测(`runSelfTests` 也一并带走当回归测试)。
    移植到 C / MicroPython 时,照这几十行的逻辑一比一翻译即可。
@@ -149,7 +149,7 @@ python scripts/subset_font.py --download
 ## 验收清单(逐项核对结果)
 
 - [x] **12 时辰 × 2 句,出处齐全,无杜撰** —— 24 句全部为可核实名句,`line/source/author/dynasty` 齐全;`data/poems.json` 顶部注明为占位。脚本校验:12 时辰、24 句、别名全对、字段无缺。
-- [x] **子时跨午夜边界正确(附测试)** —— `selectPoem` 对 `hour===23` 滚日;`?selftest` 与 Node 双跑 **9/9 通过**,含「23:30 与次日 00:30 同为子时且同一句」「22:59 为亥、23:00 为子」「次夜子时轮换」。
+- [x] **子时跨午夜边界正确(附测试)** —— `selectPoem` 对 `hour===23` 滚日(周循环下仍成立);`?selftest` 与 Node 双跑 **10/10 通过**,含「23:30 与次日 00:30 同为子时且同一句」「22:59 为亥、23:00 为子」「同星期几+同时辰隔周同句」「午时一周覆盖全部句」「十二时辰×七星期几均有完整句」。
 - [x] **断网后本地打开仍完整渲染(字体确自托管)** —— 实测所有请求皆本地(`style.css`/`main.js`/`data/poems.json`/`fonts/…woff2`),源码无任何 `http(s)://`/CDN 引用;字体 `document.fonts.check` 为真。需经本地静态服务器(见上)。
 - [x] **字体 woff2 < 300KB**(2026-07-06 复跑确认)—— 以 `D:\conda\miniconda3\python.exe`(Python 3.13 + fonttools 4.63)重跑 `scripts/subset_font.py`,产出 `LXGWWenKai-subset.woff2` = **117.5 KB / 120,364 字节**(556 字形,含全部诗字+界面字+竖排标点形 `vert`),字库校验无缺字。子集为自托管,断网刷新照常显示文楷。
 - [x] **无 console 报错** —— 加载与交互全程控制台**无警告/报错**,无失败请求。
