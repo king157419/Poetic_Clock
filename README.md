@@ -19,13 +19,12 @@ poetric_clock/
 ├── style.css                         # 版式:宣纸/墨/印、竖排断句、着重号、夜读、响应式
 ├── main.js                           # selectPoem 纯逻辑(选诗/拆句/节令)+ 渲染器 + 自检
 ├── data/
-│   ├── poems.json                    # 唯一事实来源:线上曲库(受闸门保护)
-│   ├── poems.v2.proposed.json        # v2「直书时间词」迁移提案(待主编覆盖落地)
+│   ├── poems.json                    # 唯一事实来源:线上曲库(v2「直书时间词」标准)
 │   ├── candidates.json               # 候选区 + archived_imagery 存档(不上线)
 │   ├── time_words.json               # 十二时辰合法时间词表(编辑标准)
 │   └── festivals.json                # 2026–2035 节令公历日期表(库生成)
 ├── fonts/
-│   └── LXGWWenKai-subset.woff2       # 自托管霞鹜文楷子集(117.2 KB)
+│   └── LXGWWenKai-subset.woff2       # 自托管霞鹜文楷子集(127.8 KB)
 ├── scripts/
 │   ├── subset_font.py                # 字体子集化(fonttools)
 │   └── gen_festivals.py              # 节令表生成(lunardate)
@@ -145,7 +144,7 @@ python scripts/subset_font.py --download
    **Branch** 选 `main`、目录 `/ (root)`,保存。
 4. 等一两分钟,访问 `https://<你的用户名>.github.io/<仓库名>/`。
 
-> 确保 `fonts/LXGWWenKai-subset.woff2` 一起入库(它才 117.2KB)。源 TTF(约 25MB)
+> 确保 `fonts/LXGWWenKai-subset.woff2` 一起入库(它才 127.8KB)。源 TTF(约 25MB)
 > **不必**入库,重跑子集时用 `--download` 现取即可。
 
 ---
@@ -193,9 +192,9 @@ python scripts/subset_font.py --download
 硬测试把关:①`time_word` 是 `line` 子串;②属其时辰词表。渲染时该词以**着重号**(字旁加点,
 竖排点在字右)标出,墨色不用红。
 
-> 现有 `poems.json` 中约 1/3 旧句不含时间词。迁移**不直改** `poems.json`,而是产出提案
-> [`data/poems.v2.proposed.json`](data/poems.v2.proposed.json) + [`docs/migration-v2.md`](docs/migration-v2.md)
-> 逐句对照,由主编核对后**自行覆盖** `poems.json` 落地。落地前线上仍是旧库、暂不显着重号。
+> **v2 迁移已落地(2026-07-07)**:旧库约 1/3 不含时间词的句子经提案 + [`docs/migration-v2.md`](docs/migration-v2.md)
+> 逐句对照、主编 King 核定(辰时改定为《长歌行》)后覆盖为 `data/poems.json`,并重跑字体子集。现线上
+> `poems.json` 全部合规、着重号已生效。提案文件已消费移除,对照表留档。日后再迁移仍走「提案 → 审 → 覆盖 → 重跑子集」。
 
 ### 节令彩蛋
 强节令句(元日/元夕/重阳…)平日**绝不出现**,只在节日当天顶替该时辰常规句、全天生效。给句子加
@@ -222,7 +221,7 @@ python scripts/gen_festivals.py     # 生成 data/festivals.json(默认 2026–2
 - [x] **12 时辰 × 2 句,出处齐全,无杜撰** —— 24 句全部为可核实名句,`line/source/author/dynasty` 齐全;`data/poems.json` 顶部注明为占位。脚本校验:12 时辰、24 句、别名全对、字段无缺。
 - [x] **子时跨午夜边界正确(附测试)** —— `selectPoem` 对 `hour===23` 滚日(周循环下仍成立);`?selftest` 与 Node 双跑 **10/10 通过**,含「23:30 与次日 00:30 同为子时且同一句」「22:59 为亥、23:00 为子」「同星期几+同时辰隔周同句」「午时一周覆盖全部句」「十二时辰×七星期几均有完整句」。
 - [x] **断网后本地打开仍完整渲染(字体确自托管)** —— 实测所有请求皆本地(`style.css`/`main.js`/`data/poems.json`/`fonts/…woff2`),源码无任何 `http(s)://`/CDN 引用;字体 `document.fonts.check` 为真。需经本地静态服务器(见上)。
-- [x] **字体 woff2 < 300KB**(2026-07-06 复跑确认)—— 以 `D:\conda\miniconda3\python.exe`(Python 3.13 + fonttools 4.63)重跑 `scripts/subset_font.py`:任务①复跑与 v1 逐字节一致(120,364 字节);任务③因 `poems.json` 文案微调重跑,当前产物 `LXGWWenKai-subset.woff2` = **117.2 KB / 120,028 字节 / 554 字形**(含竖排标点形 `vert`),341 个渲染字形校验无缺。自托管,断网刷新照常显示文楷。
+- [x] **字体 woff2 < 300KB**(2026-07-07 v2 迁移后重跑)—— 以 `D:\conda\miniconda3\python.exe`(Python 3.13 + fonttools 4.63)重跑 `scripts/subset_font.py`:v2 曲库替换/新增诗句后当前产物 `LXGWWenKai-subset.woff2` = **127.8 KB / 130,896 字节 / 595 字形**(含竖排标点形 `vert`),全部渲染字形校验无缺。自托管,断网刷新照常显示文楷。
 - [x] **无 console 报错** —— 加载与交互全程控制台**无警告/报错**,无失败请求。
 - [x] **手机竖屏与桌面横屏两种布局都成立** —— 桌面 1280×800:诗居中无溢出;手机 390×844:诗居中、字号自适应、无溢出。全页唯一红元素为印章。
 
@@ -236,7 +235,7 @@ python scripts/gen_festivals.py     # 生成 data/festivals.json(默认 2026–2
 - [x] **异文夹注体例** —— `variant_note` 渲染为落款旁小字(9.9px < 落款 13.1px、更淡、竖排),已应用四处。
 - [x] **自检全量绿(浏览器 ?selftest 与 Node 双跑)** —— **21/21 通过**,无 console 报错、无失败请求。
 
-测试环境:Windows 11 + Python 3.13(`D:\conda\miniconda3`)+ fonttools 4.63 + lunardate;浏览器经内置预览引擎(Chromium)核验。字体子集给定相同输入可逐字节复现(当前 120,028 字节 / 117.2 KB)。
+测试环境:Windows 11 + Python 3.13(`D:\conda\miniconda3`)+ fonttools 4.63 + lunardate;浏览器经内置预览引擎(Chromium)核验。字体子集给定相同输入可逐字节复现(v2 迁移后 130,896 字节 / 127.8 KB)。
 
 ---
 

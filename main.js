@@ -260,6 +260,14 @@ function runSelfTests(data, opts) {
     ok('时间词表:一词只归一时辰', dup === 0, dup ? dup + ' 词跨档重复' : '(' + wordCount + ' 词唯一)');
 
     const std = opts.standard || data;
+    // 覆盖:标准库每条都应有 time_word(迁移落地后 poems.json 应全覆盖)
+    let noTw = [], nEntries = 0;
+    (std.shichen || []).forEach(function (sc) {
+      (sc.poems || []).forEach(function (p) { nEntries++; if (!p.time_word) noTw.push(sc.id + ':' + p.line); });
+    });
+    ok('曲库每条都有 time_word', noTw.length === 0,
+      noTw.length ? '缺:' + noTw.join('; ') : '(共 ' + nEntries + ' 条)');
+
     const v = validateTimeWords(std, opts.timeWords);
     ok('① 每条 time_word 是 line 的子串', v.subMiss.length === 0,
       v.subMiss.length ? v.subMiss.join('; ') : '(校验 ' + v.checked + ' 条)');
@@ -339,14 +347,13 @@ if (typeof document !== 'undefined') {
       Promise.all([
         get('data/poems.json'),
         get('data/festivals.json'),
-        get('data/time_words.json'),
-        get('data/poems.v2.proposed.json')
+        get('data/time_words.json')
       ]).then(function (arr) {
-        const poems = arr[0], fest = arr[1], tw = arr[2], prop = arr[3];
+        const poems = arr[0], fest = arr[1], tw = arr[2];
         if (!poems) { showLoadError(new Error('poems.json 未载入')); return; }
         DATA = poems;
         FESTIVALS = fest ? (fest.dates || fest) : null;
-        if (location.search.indexOf('selftest') !== -1) showSelfTest(tw, prop);
+        if (location.search.indexOf('selftest') !== -1) showSelfTest(tw);
         bindInteractions();
         tick(true);
         setInterval(function () { tick(false); }, 1000);
@@ -537,9 +544,10 @@ if (typeof document !== 'undefined') {
         '—— file:// 直接打开会被浏览器拦截 fetch,请以 http 方式预览。');
     }
 
-    function showSelfTest(timeWords, proposed) {
+    function showSelfTest(timeWords) {
+      // poems.json 迁移落地后即 v2 标准库,直接对它校验 time_word
       const r = runSelfTests(DATA, {
-        timeWords: timeWords, standard: proposed, festivals: FESTIVALS, testFestival: true
+        timeWords: timeWords, festivals: FESTIVALS, testFestival: true
       });
       const box = document.createElement('div');
       box.id = 'selftest';
