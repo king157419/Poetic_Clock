@@ -32,11 +32,27 @@ function poemIndexForWeekday(weekday, count) {
   return weekday % count;
 }
 
+/** 本地日历日键 yyyy-mm-dd(纯逻辑,节令查表用,不做子时滚动)。 */
+function dateKey(date) {
+  const m = String(date.getMonth() + 1);
+  const d = String(date.getDate());
+  return date.getFullYear() + '-' + (m.length < 2 ? '0' + m : m) + '-' + (d.length < 2 ? '0' + d : d);
+}
+
+/** 轮换用星期几:子时 23:xx 滚到次日再取 getDay(保持一夜同句)。 */
+function weekdayForRotation(date) {
+  const hour = date.getHours();
+  const rd = (hour === 23) ? new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1) : date;
+  return rd.getDay(); // 0=周日 … 6=周六
+}
+
 /**
- * 纯函数:给定时刻 date 与数据 data,返回此刻此辰应显示的诗。
- * @returns {{shichen, poem, shichenIndex, poemIndex, weekday}|null}
+ * 纯函数:给定时刻 date、数据 data、可选节日表 festivals,返回此刻此辰应显示的诗。
+ * 节令层:当日(真实日历日,全天)命中节日、且本时辰存在该节日句 → 顶替常规句;
+ * 否则走常规周循环(常规选诗完全排除带 festival 字段的句子)。
+ * @returns {{shichen, poem, shichenIndex, poemIndex, weekday, isFestival, festival?}|null}
  */
-function selectPoem(date, data) {
+function selectPoem(date, data, festivals) {
   if (!data || !Array.isArray(data.shichen) || data.shichen.length !== 12) return null;
 
   const hour = date.getHours();
@@ -44,22 +60,32 @@ function selectPoem(date, data) {
   const shichen = data.shichen[shichenIndex];
   if (!shichen || !Array.isArray(shichen.poems) || shichen.poems.length === 0) return null;
 
-  // 轮换键 = 星期几(getDay,0=周日)。子时 23:00–00:59 属于同一个「子时之夜」,
-  // 应显示同一句:当 hour === 23 时把日期滚到次日,使 23:30 与次日 00:30 落在
-  // 相同的 getDay 上、命中同一句(该子时归入它所引向的清晨那一天的星期)。
-  let rollDate = date;
-  if (hour === 23) {
-    rollDate = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
-  }
-  const weekday = rollDate.getDay(); // 0=周日 … 6=周六
-  const poemIndex = poemIndexForWeekday(weekday, shichen.poems.length);
+  const weekday = weekdayForRotation(date);
 
+  // ── 节令彩蛋层 ──:节日当天,若本时辰有该节日句则顶替,全天生效。
+  if (festivals) {
+    const names = festivals[dateKey(date)];
+    if (Array.isArray(names)) {
+      for (let i = 0; i < names.length; i++) {
+        for (let j = 0; j < shichen.poems.length; j++) {
+          if (shichen.poems[j].festival === names[i]) {
+            return {
+              shichen: shichen, poem: shichen.poems[j], shichenIndex: shichenIndex,
+              poemIndex: j, weekday: weekday, isFestival: true, festival: names[i]
+            };
+          }
+        }
+      }
+    }
+  }
+
+  // ── 常规周循环 ──:仅在「非节令句」中选,节令句平日绝不出现。
+  const regular = shichen.poems.filter(function (p) { return !p.festival; });
+  if (!regular.length) return null;
+  const poemIndex = poemIndexForWeekday(weekday, regular.length);
   return {
-    shichen: shichen,
-    poem: shichen.poems[poemIndex],
-    shichenIndex: shichenIndex,
-    poemIndex: poemIndex,
-    weekday: weekday
+    shichen: shichen, poem: regular[poemIndex], shichenIndex: shichenIndex,
+    poemIndex: poemIndex, weekday: weekday, isFestival: false
   };
 }
 
@@ -241,17 +267,17 @@ function runSelfTests(data, opts) {
       v.listMiss.length ? v.listMiss.join('; ') : '(校验 ' + v.checked + ' 条)');
   }
 
-  // §4 节令层硬测试(注入合成数据 + 节日表,不依赖真实曲库)。
+  // §4 节令层硬测试(注入合成 12 时辰数据 + 节日表,不依赖真实曲库)。
   if (opts.festivals !== undefined || opts.testFestival) {
-    const festData = {
-      shichen: [
-        { id: 'zi', name: '子时', alias: '夜半', range: [23, 1], poems: [{ line: '常规子时句', time_word: '夜半' }] },
-        { id: 'mao', name: '卯时', alias: '日出', range: [5, 7], poems: [
-          { line: '爆竹声中一岁除', time_word: '曈曈', festival: '春节' },
-          { line: '常规卯时句一', time_word: '日出' }, { line: '常规卯时句二', time_word: '晓' }
-        ] }
-      ]
-    };
+    const ids = ['zi', 'chou', 'yin', 'mao', 'chen', 'si', 'wu', 'wei', 'shen', 'you', 'xu', 'hai'];
+    const festData = { shichen: ids.map(function (id) {
+      return { id: id, name: id, alias: id, range: [0, 0], poems: [{ line: '常规' + id, source: '《测》' }] };
+    }) };
+    // 卯时(index 3,hour 5–6)注入一句春节彩蛋 + 两句常规
+    festData.shichen[3].poems = [
+      { line: '爆竹声中一岁除', source: '《元日》', festival: '春节' },
+      { line: '常规卯一', source: '《测》' }, { line: '常规卯二', source: '《测》' }
+    ];
     const fest = { '2026-02-17': ['春节'] };
     // ① 注入春节当天 → 卯时返回节日句
     const onFest = selectPoem(new Date(2026, 1, 17, 6, 0), festData, fest);
@@ -303,19 +329,27 @@ if (typeof document !== 'undefined') {
     let previewTimer = null;   // 预览 10 秒无操作自动归位
     let fadeTimer = null;
     let lastClauses = [];      // 当前显示的短句(供窗口尺寸变化时重算字号)
+    let FESTIVALS = null;      // 节日表 { "YYYY-MM-DD": ["节日名"] }(可选)
 
     /* ---------- 数据加载 ---------- */
     function boot() {
-      fetch('data/poems.json', { cache: 'no-cache' })
-        .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-        .then((data) => {
-          DATA = data;
-          if (location.search.indexOf('selftest') !== -1) showSelfTest();
-          bindInteractions();
-          tick(true);
-          setInterval(() => tick(false), 1000);
-        })
-        .catch((err) => showLoadError(err));
+      const get = (u) => fetch(u, { cache: 'no-cache' }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+      // poems.json 为渲染必需;festivals/time_words/proposed 为可选(节令与自检用)
+      Promise.all([
+        get('data/poems.json'),
+        get('data/festivals.json'),
+        get('data/time_words.json'),
+        get('data/poems.v2.proposed.json')
+      ]).then(function (arr) {
+        const poems = arr[0], fest = arr[1], tw = arr[2], prop = arr[3];
+        if (!poems) { showLoadError(new Error('poems.json 未载入')); return; }
+        DATA = poems;
+        FESTIVALS = fest ? (fest.dates || fest) : null;
+        if (location.search.indexOf('selftest') !== -1) showSelfTest(tw, prop);
+        bindInteractions();
+        tick(true);
+        setInterval(function () { tick(false); }, 1000);
+      });
     }
 
     /* ---------- 主循环 ---------- */
@@ -329,7 +363,7 @@ if (typeof document !== 'undefined') {
       // 角落现代时间(始终真实此刻)
       el.time.textContent = fmtTime(now);
 
-      const current = selectPoem(now, DATA);
+      const current = selectPoem(now, DATA, FESTIVALS);
       if (!current) return;
 
       // 决定要显示的选择:预览态取相对时辰,否则取真实此刻
@@ -337,7 +371,7 @@ if (typeof document !== 'undefined') {
       if (previewOffset !== 0) {
         const targetIndex = (current.shichenIndex + previewOffset + 12) % 12;
         const rep = new Date(now.getFullYear(), now.getMonth(), now.getDate(), REP_HOURS[targetIndex], 0, 0);
-        sel = selectPoem(rep, DATA) || current;
+        sel = selectPoem(rep, DATA, FESTIVALS) || current;
         preview = true;
       }
 
@@ -499,8 +533,10 @@ if (typeof document !== 'undefined') {
         '—— file:// 直接打开会被浏览器拦截 fetch,请以 http 方式预览。');
     }
 
-    function showSelfTest() {
-      const r = runSelfTests(DATA);
+    function showSelfTest(timeWords, proposed) {
+      const r = runSelfTests(DATA, {
+        timeWords: timeWords, standard: proposed, festivals: FESTIVALS, testFestival: true
+      });
       const box = document.createElement('div');
       box.id = 'selftest';
       box.innerHTML = '<b>自检:' + r.passed + ' 通过 / ' + r.failedCount + ' 失败</b>' +

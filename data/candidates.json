@@ -139,7 +139,8 @@
           "why": "曈曈朝日,万户初升。",
           "confidence": "high",
           "source_note": "《临川先生文集》。",
-          "time_word": "曈曈"
+          "time_word": "曈曈",
+          "festival": "春节"
         }
       ]
     },
@@ -360,7 +361,8 @@
           "why": "直书「黄昏」,月上柳梢。",
           "confidence": "medium",
           "source_note": "《欧阳文忠公集》收录;作者欧阳修 / 朱淑真历有争议,晋升前请酌定署名。",
-          "time_word": "黄昏"
+          "time_word": "黄昏",
+          "festival": "元宵"
         }
       ]
     },
