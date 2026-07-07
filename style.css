@@ -1,0 +1,212 @@
+/* ======================================================================
+ * 诗意时钟 · 版式
+ * 意象:宣纸、墨、印。留白为主,诗为主角,时间退居角落。
+ * 唯一强调色(印章红 #a63f36)全页只出现在一处:时辰印章 .seal。
+ * 禁止:阴影 / 渐变 / 玻璃拟态 / emoji / 图标 / 仪表盘感。
+ * ==================================================================== */
+
+/* 自托管霞鹜文楷子集(见 scripts/subset_font.py)。不依赖任何在线字体。 */
+@font-face {
+  font-family: 'LXGW WenKai Subset';
+  src: url('fonts/LXGWWenKai-subset.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --paper: #f5f1e8;   /* 宣纸 */
+  --ink:   #2b2b2b;   /* 墨 */
+  --ink-soft: #6f695d; /* 淡墨(出处、角落) */
+  --ink-faint: #b7ad9a;/* 极淡(香篆、提示) */
+  --seal:  #a63f36;   /* 印章红——全页唯一强调色 */
+  --fade: 380ms;
+}
+
+/* 夜读模式:深底暖字,版式不变 */
+body.night {
+  --paper: #17130d;
+  --ink:   #e6dcc6;
+  --ink-soft: #a99f89;
+  --ink-faint: #4a4335;
+  --seal:  #c0574a;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'LXGW WenKai Subset', 'Songti SC', 'Noto Serif CJK SC', serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 900ms ease, color 900ms ease;
+  overflow: hidden;
+}
+
+/* 舞台:全屏,主体居中,四角留给配角 */
+.stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: max(4vmin, env(safe-area-inset-top)) max(4vmin, env(safe-area-inset-right))
+           max(4vmin, env(safe-area-inset-bottom)) max(4vmin, env(safe-area-inset-left));
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- 诗:竖排主角 ---------- */
+.poem {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;   /* 汉字直立、全角标点走竖排形(逗号居右上) */
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(0.8rem, 2.4vmin, 1.8rem);
+  max-height: 78vh;
+  max-width: 88vw;
+  opacity: 1;
+  transition: opacity var(--fade) ease;
+}
+.poem.is-out { opacity: 0; }
+
+.poem-line {
+  margin: 0;
+  font-size: clamp(2.1rem, 8vmin, 4rem);
+  line-height: 1.42;               /* 竖排:控制列间距 */
+  letter-spacing: 0.14em;          /* 字距,呼吸感 */
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.poem-meta {
+  margin: 0;
+  align-self: flex-end;            /* 落款:退到诗末(下方) */
+  font-size: clamp(0.82rem, 2.1vmin, 1.05rem);
+  line-height: 1.6;
+  letter-spacing: 0.1em;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+
+/* ---------- 时辰印章:全页唯一的红 ---------- */
+.seal {
+  align-self: flex-end;
+  flex: none;
+  width: clamp(1.7rem, 4.6vmin, 2.5rem);
+  height: clamp(1.7rem, 4.6vmin, 2.5rem);
+  margin-top: clamp(0.6rem, 1.8vmin, 1.2rem);
+  display: grid;
+  place-items: center;
+  writing-mode: horizontal-tb;
+  background: var(--seal);
+  color: var(--paper);             /* 阳文:纸色字压在朱底上 */
+  font-size: clamp(1rem, 2.8vmin, 1.5rem);
+  letter-spacing: 0;
+  border-radius: 2px;
+  user-select: none;
+}
+
+/* ---------- 角落配角 ---------- */
+.corner {
+  position: fixed;
+  font-size: clamp(0.78rem, 1.9vmin, 1rem);
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
+  user-select: none;
+}
+.corner-shichen { top: max(4.5vmin, env(safe-area-inset-top)); right: max(5vmin, env(safe-area-inset-right)); }
+.corner-time    { bottom: max(4.5vmin, env(safe-area-inset-bottom)); left: max(5vmin, env(safe-area-inset-left)); font-variant-numeric: tabular-nums; }
+
+/* ---------- 香篆:极细进度弧 ---------- */
+.incense {
+  position: fixed;
+  bottom: max(3.2vmin, env(safe-area-inset-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(46vw, 30vh);
+  height: auto;
+  pointer-events: none;
+  opacity: 0.9;
+}
+.incense-track, .incense-arc {
+  fill: none;
+  stroke-linecap: round;
+}
+.incense-track { stroke: var(--ink-faint); stroke-width: 0.5; opacity: 0.45; }
+.incense-arc {
+  stroke: var(--ink-soft);
+  stroke-width: 0.8;
+  opacity: 0.55;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;           /* 由 JS 按进度更新 */
+  transition: stroke-dashoffset 900ms linear;
+}
+
+/* ---------- 预览角标 ---------- */
+.preview-badge {
+  position: fixed;
+  top: max(4.5vmin, env(safe-area-inset-top));
+  left: max(5vmin, env(safe-area-inset-left));
+  font-size: clamp(0.76rem, 1.8vmin, 0.95rem);
+  letter-spacing: 0.3em;
+  color: var(--ink-soft);
+  border: 1px solid var(--ink-faint);
+  padding: 0.2em 0.55em;
+  border-radius: 2px;
+}
+.stage.previewing .poem { opacity: 1; }
+
+/* ---------- 提示:数秒后隐去,首次交互即消失 ---------- */
+.hint {
+  position: fixed;
+  bottom: max(9vmin, calc(env(safe-area-inset-bottom) + 6vmin));
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: clamp(0.72rem, 1.7vmin, 0.9rem);
+  letter-spacing: 0.25em;
+  color: var(--ink-faint);
+  pointer-events: none;
+  animation: hint-fade 9s ease forwards;
+}
+.hint.gone { animation: none; opacity: 0; transition: opacity 500ms ease; }
+@keyframes hint-fade {
+  0%, 55% { opacity: 0.75; }
+  100%    { opacity: 0; }
+}
+
+/* ---------- 自检浮层(仅 ?selftest) ---------- */
+#selftest {
+  position: fixed; top: 10px; left: 10px; right: 10px;
+  max-width: 640px; margin: 0 auto;
+  background: var(--paper); color: var(--ink);
+  border: 1px solid var(--ink-faint);
+  font: 13px/1.7 ui-monospace, Menlo, Consolas, monospace;
+  padding: 10px 14px; border-radius: 4px; z-index: 99;
+}
+#selftest .ok { color: #3f7a4d; }
+#selftest .no { color: var(--seal); font-weight: 700; }
+#selftest span { color: var(--ink-soft); }
+
+/* ---------- 横屏桌面:给主角更从容的字号 ---------- */
+@media (min-width: 900px) and (orientation: landscape) {
+  .poem-line { font-size: clamp(2.8rem, 8vmin, 5rem); }
+  .poem-meta { font-size: clamp(0.95rem, 2vmin, 1.15rem); }
+}
+
+/* ---------- 竖屏手机:略收字号,保证不撑破高度 ---------- */
+@media (orientation: portrait) and (max-width: 560px) {
+  .poem { max-height: 74vh; }
+  .poem-line { font-size: clamp(2rem, 9.2vmin, 3.4rem); }
+}
+
+/* 尊重「减少动态」偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .poem, .incense-arc, body { transition: none; }
+  .hint { animation: none; opacity: 0; }
+}

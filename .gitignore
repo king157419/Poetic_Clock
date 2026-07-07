@@ -1,0 +1,21 @@
+# 字体源文件(体积大,不入库);子集产物 woff2 需入库,不忽略。
+fonts/*.ttf
+fonts/*.otf
+fonts/*.ttc
+fonts/*.woff
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 依赖 / 部署工具产物
+node_modules/
+.vercel/
+
+# 编辑器 / 系统 / 本地工具配置
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.claude/

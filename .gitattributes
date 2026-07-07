@@ -1,0 +1,9 @@
+# 统一以 LF 存储文本,避免跨平台(Windows 开发 / Linux 部署)行尾抖动。
+* text=auto eol=lf
+
+# 二进制资源:禁止行尾转换与 diff。
+*.woff2 binary
+*.ttf   binary
+*.otf   binary
+*.png   binary
+*.jpg   binary

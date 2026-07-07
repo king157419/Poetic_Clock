@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>诗意时钟</title>
+  <meta name="description" content="以中国古典诗词报时的时钟。诗是主角,时间是配角。" />
+  <meta name="theme-color" content="#f5f1e8" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main id="stage" class="stage" aria-live="polite">
+
+    <!-- 香篆:一条极细弧线,示当前时辰内的进度 -->
+    <svg id="incense" class="incense" viewBox="0 0 100 40" aria-hidden="true" focusable="false">
+      <path class="incense-track" d="M 6 34 Q 50 6 94 34" />
+      <path id="incenseArc" class="incense-arc" d="M 6 34 Q 50 6 94 34" pathLength="100" />
+    </svg>
+
+    <!-- 预览角标 -->
+    <div id="previewBadge" class="preview-badge" hidden>预览</div>
+
+    <!-- 诗:竖排,视觉中心的绝对主角 -->
+    <section class="poem" id="poem" aria-label="此刻的诗">
+      <p class="poem-line" id="poemLine"></p>
+      <p class="poem-meta" id="poemMeta"></p>
+      <span class="seal" id="seal" role="img" aria-label="时辰印"></span>
+    </section>
+
+    <!-- 角落:时辰名 / 现代时间,退居其后 -->
+    <div class="corner corner-shichen" id="cornerShichen"></div>
+    <time class="corner corner-time" id="cornerTime"></time>
+
+    <!-- 极简提示,数秒后隐去 -->
+    <div class="hint" id="hint">← → 预览其他时辰</div>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>
