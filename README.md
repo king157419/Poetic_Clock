@@ -32,9 +32,13 @@ poetric_clock/
 │   ├── gen_festivals.py              # 节令表生成(lunardate)
 │   ├── fetch_corpus.py               # 采收①:下载 Werneror 语料到 corpus/
 │   ├── harvest_time_words.py         # 采收②:检索时间词+去重+打分(纯函数+自检)
-│   └── annotate_batch.py             # 采收③:逐条语义标注 keep/drop(只注不裁)
+│   ├── annotate_batch.py             # 采收③:逐条语义标注 keep/drop(只注不裁)
+│   ├── refresh_famous.py             # 采收④:名录归一化重判 famous(成员冻结)+挖遗珠
+│   └── make_review.py               # 采收⑤:渲染主编审读表 review-001.md
 ├── docs/migration-v2.md              # v2 迁移逐句对照表(供主编审阅)
 ├── docs/harvest-report.md            # 采收报告:命中量/稀缺时辰词/famous率/误命中
+├── docs/harvest-errata-001.md        # 遗珠附录:归一化后头部之外的 famous(供定是否出 batch-001b)
+├── docs/review-001.md                # 采收审读表:按时辰分组、famous 在前、drop 附理由
 ├── README.md
 └── DECISIONS.md                      # 每个非显然决定的记录
 ```

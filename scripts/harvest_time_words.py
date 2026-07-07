@@ -24,8 +24,10 @@ data/harvest/batch-001.json,供主编逐条核对后手动晋升。
   · tier:作者在一线名家表内 → 1,其余 → 2(表见 TIER1,可微调,记 DECISIONS)。
   · famous:该诗命中《唐诗三百首》/《宋词三百首》名录 → true,并记 anthology。
       名录取自 chinese-poetry 仓库(仅这两个文件,不下载其全库),放 corpus/anthology/。
-      注:《唐诗三百首》原文为**繁体**,与简体语料精确匹配受限(繁简转换按主编裁定作废,
-      不引入 opencc);《宋词三百首》为简体,按「作者+首句」可精确命中。famous 命中率见报告。
+      注:《唐诗三百首》原文为**繁体**;主编 2026-07-07 授权对**名录**做繁→简归一化
+      (opencc t2s,仅施于名录 tang300,不转换语料——作废的是语料转换,名录归一化另论),
+      归一后与简体语料精确匹配。《宋词三百首》本为简体,按「作者+首句」直接命中。
+      opencc 不可用时自动回退为不归一(唐诗类 famous 退化为召回下限)。famous 命中率见报告。
   · 排序:famous > tier1 > tier2 > 句形/时代/词性综合分。
 
 配额:每时辰按排序取前 --per-shichen(默认 20)条,总量 ≤ 240,宁缺毋滥。
@@ -122,22 +124,37 @@ def load_existing_norms():
     return norms
 
 
-def load_anthologies(dirpath):
+def get_t2s():
+    """繁→简归一化函数(opencc t2s)。仅供**名录归一化**用,不转换语料。
+    opencc 缺失时返回 None(调用方回退为不归一)。主编 2026-07-07 授权:
+    作废的是「语料繁简转换」,名录(tang300 繁体)归一化另论,不违反该裁定。"""
+    try:
+        import opencc
+        return opencc.OpenCC("t2s").convert
+    except Exception as e:
+        print("  [warn] opencc 不可用(%s),名录不归一,唐诗类 famous 退化为召回下限。" % e)
+        return None
+
+
+def load_anthologies(dirpath, t2s=None):
     """→ {famous_key: anthology_name}。key = 作者\\t题目 或 作者\\t#首句(均取汉字指纹)。
-    《宋词三百首》为简体,首句键可精确命中;《唐诗三百首》为繁体,仅题目 / 作者恰同者命中。"""
+    《宋词三百首》本为简体;《唐诗三百首》为繁体,若传入 t2s 则**仅对该名录**做繁→简归一化
+    后再建键(名录归一化,非语料转换)。t2s=None 时唐诗类仅题 / 作者恰同者命中(召回下限)。"""
     idx = {}
-    for fn, name in (("tang300.json", "唐诗三百首"), ("song300.json", "宋词三百首")):
+    for fn, name, normalize in (("tang300.json", "唐诗三百首", True),
+                                ("song300.json", "宋词三百首", False)):
         path = os.path.join(dirpath, fn)
         if not os.path.exists(path):
             continue
+        conv = t2s if (normalize and t2s) else (lambda x: x)
         for e in json.load(open(path, encoding="utf-8")):
-            auth = norm_cjk(e.get("author", ""))
-            title = norm_cjk(e.get("title") or e.get("rhythmic") or "")
+            auth = norm_cjk(conv(e.get("author", "")))
+            title = norm_cjk(conv(e.get("title") or e.get("rhythmic") or ""))
             paras = e.get("paragraphs") or []
             if auth and title:
                 idx[auth + "\t" + title] = name
             if auth and paras:
-                idx[auth + "\t#" + norm_cjk(paras[0])] = name
+                idx[auth + "\t#" + norm_cjk(conv(paras[0]))] = name
     return idx
 
 
@@ -365,7 +382,7 @@ def main():
         sys.exit("抽取自检未过,已中止。")
 
     existing = load_existing_norms()
-    anthology_idx = load_anthologies(args.anthology)
+    anthology_idx = load_anthologies(args.anthology, get_t2s())
     order = [sid for sid, _, _ in shichen_meta]
 
     seen = {sid: set() for sid in order}
@@ -575,8 +592,8 @@ def write_report(path, shichen_meta, per, word_info, word_hits, out_shichen,
     L.append("\n## famous 命中率\n")
     L.append("- 头部入批共 %d 条,其中 famous(命中《唐诗三百首》/《宋词三百首》名录)%d 条,占 %.1f%%。" %
              (total_head, fam, 100.0 * fam / total_head if total_head else 0.0))
-    L.append("- 说明:《唐诗三百首》原文繁体,与简体语料精确匹配受限(繁简转换按主编裁定作废,未引入 opencc);"
-             "《宋词三百首》简体,按「作者+首句」可精确命中。故 famous 偏低是**召回下限**,非真实占比。")
+    L.append("- 说明:《唐诗三百首》原文繁体,已按主编 2026-07-07 授权对**名录**做繁→简归一化(opencc t2s,"
+             "仅名录、不转语料)后与简体语料精确匹配;《宋词三百首》本简体,按「作者+首句」命中。opencc 缺失时回退为召回下限。")
     L.append("- tier(一线名家表,作者名简体匹配,稳定)已作主排序,不受繁简影响。")
 
     # 误命中抽样:auto_hint=suspect 的头部条目

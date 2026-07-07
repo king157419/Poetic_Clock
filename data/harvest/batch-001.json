@@ -30,8 +30,8 @@
      "hits": 8600,
      "distinct": 6699,
      "head": 20,
-     "famous": 9,
-     "famous_distinct": 9
+     "famous": 10,
+     "famous_distinct": 16
     },
     "chou": {
      "name": "丑时",
@@ -48,8 +48,8 @@
      "hits": 2470,
      "distinct": 1930,
      "head": 20,
-     "famous": 1,
-     "famous_distinct": 1
+     "famous": 3,
+     "famous_distinct": 8
     },
     "mao": {
      "name": "卯时",
@@ -58,7 +58,7 @@
      "distinct": 16910,
      "head": 20,
      "famous": 20,
-     "famous_distinct": 20
+     "famous_distinct": 42
     },
     "chen": {
      "name": "辰时",
@@ -67,7 +67,7 @@
      "distinct": 38138,
      "head": 20,
      "famous": 20,
-     "famous_distinct": 22
+     "famous_distinct": 67
     },
     "si": {
      "name": "巳时",
@@ -75,8 +75,8 @@
      "hits": 797,
      "distinct": 612,
      "head": 20,
-     "famous": 0,
-     "famous_distinct": 0
+     "famous": 1,
+     "famous_distinct": 2
     },
     "wu": {
      "name": "午时",
@@ -94,7 +94,7 @@
      "distinct": 1032,
      "head": 20,
      "famous": 4,
-     "famous_distinct": 4
+     "famous_distinct": 6
     },
     "shen": {
      "name": "申时",
@@ -102,8 +102,8 @@
      "hits": 941,
      "distinct": 740,
      "head": 20,
-     "famous": 0,
-     "famous_distinct": 0
+     "famous": 2,
+     "famous_distinct": 2
     },
     "you": {
      "name": "酉时",
@@ -112,7 +112,7 @@
      "distinct": 7177,
      "head": 20,
      "famous": 20,
-     "famous_distinct": 24
+     "famous_distinct": 38
     },
     "xu": {
      "name": "戌时",
@@ -121,7 +121,7 @@
      "distinct": 21943,
      "head": 20,
      "famous": 20,
-     "famous_distinct": 70
+     "famous_distinct": 113
     },
     "hai": {
      "name": "亥时",
@@ -136,7 +136,8 @@
    "dropped": {
     "in_library": 46,
     "dup": 26255
-   }
+   },
+   "famous_head_total": 101
   },
   "semantic_done": true,
   "semantic_summary": {
@@ -149,6 +150,13 @@
     "酉时": 1,
     "戌时": 1
    }
+  },
+  "famous_refresh": {
+   "date": "2026-07-07",
+   "method": "名录 tang300 繁→简归一化(opencc t2s,仅名录、不转语料);成员冻结,只重判 famous 字段。",
+   "head_famous_before": 101,
+   "head_famous_after": 101,
+   "errata": "docs/harvest-errata-001.md(头部之外遗珠,供主编决定是否出 batch-001b)"
   }
  },
  "shichen": [
@@ -726,8 +734,8 @@
      "why": "",
      "confidence": "unverified",
      "source_note": "待溯源",
-     "famous": false,
-     "anthology": "",
+     "famous": true,
+     "anthology": "唐诗三百首",
      "tier": 1,
      "semantic": {
       "verdict": "keep",
@@ -1650,8 +1658,8 @@
      "why": "",
      "confidence": "unverified",
      "source_note": "待溯源",
-     "famous": false,
-     "anthology": "",
+     "famous": true,
+     "anthology": "唐诗三百首",
      "tier": 1,
      "semantic": {
       "verdict": "keep",
@@ -1825,8 +1833,8 @@
      "why": "",
      "confidence": "unverified",
      "source_note": "待溯源",
-     "famous": false,
-     "anthology": "",
+     "famous": true,
+     "anthology": "唐诗三百首",
      "tier": 1,
      "semantic": {
       "verdict": "keep",
@@ -4301,8 +4309,8 @@
      "why": "",
      "confidence": "unverified",
      "source_note": "待溯源",
-     "famous": false,
-     "anthology": "",
+     "famous": true,
+     "anthology": "唐诗三百首",
      "tier": 1,
      "semantic": {
       "verdict": "keep",
@@ -6172,8 +6180,8 @@
      "why": "",
      "confidence": "unverified",
      "source_note": "待溯源",
-     "famous": false,
-     "anthology": "",
+     "famous": true,
+     "anthology": "唐诗三百首",
      "tier": 1,
      "semantic": {
       "verdict": "keep",
@@ -6246,8 +6254,8 @@
      "why": "",
      "confidence": "unverified",
      "source_note": "待溯源",
-     "famous": false,
-     "anthology": "",
+     "famous": true,
+     "anthology": "唐诗三百首",
      "tier": 1,
      "semantic": {
       "verdict": "keep",
